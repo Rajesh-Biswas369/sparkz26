@@ -53,8 +53,9 @@ export default function LandingPage() {
   const timelineEvents = [
     { time: "10:00 AM", title: "Gates Open", desc: "Welcome to the Electric realm." },
     { time: "10:30 AM", title: "Freshers' Breakfast", desc: "Fuel up for the day." },
-    { time: "12:00 PM", title: "Cultural Performances", desc: "Showcase of talents." },
-    { time: "2:30 PM", title: "The Grand Feast", desc: "A meal to remember." },
+    { time: "11:30 AM", title: "Cultural Performances", desc: "Showcase of talents." },
+    { time: "2:00 PM", title: "The Grand Feast", desc: "A meal to remember." },
+    { time: "7:00 PM", title: "The End", desc: "The night is young, but the memories are forever." },
   ];
 
   const teamMembers = [
