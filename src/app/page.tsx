@@ -191,25 +191,8 @@ export default function LandingPage() {
         <div ref={timelineRef} className="relative w-full flex flex-col items-center">
           
           <div className="relative w-full max-w-5xl mx-auto py-10 px-4">
-            {/* S-Curve SVG Background */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-[120px] h-full pointer-events-none flex justify-center z-0">
-              <svg viewBox="0 0 120 1200" preserveAspectRatio="none" className="h-full w-full overflow-visible drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">
-                <defs>
-                  <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#00E5FF" />
-                    <stop offset="50%" stopColor="#E07020" />
-                    <stop offset="100%" stopColor="#00E5FF" />
-                  </linearGradient>
-                </defs>
-                <motion.path 
-                  d="M 60 0 C 140 200, -20 200, 60 400 C 140 600, -20 600, 60 800 C 140 1000, -20 1000, 38 1200"
-                  fill="transparent"
-                  stroke="url(#lineGrad)"
-                  strokeWidth="4"
-                  style={{ pathLength: scrollYProgress }}
-                />
-              </svg>
-            </div>
+            {/* Straight Glowing Vertical Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-[#00E5FF] via-[#00E5FF]/50 to-transparent shadow-[0_0_15px_rgba(0,229,255,0.8)] rounded-full z-0"></div>
 
             <div className="flex flex-col space-y-24 relative z-10">
               {timelineEvents.map((event, idx) => (
