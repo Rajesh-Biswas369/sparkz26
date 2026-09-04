@@ -16,6 +16,9 @@ export default function LandingPage() {
   // Outline-to-fill text animation trigger (Left to Right)
   const textFillClip = useTransform(scrollYProgress, [0.85, 1], ["inset(0 100% 0 0)", "inset(0 0% 0 0)"]);
 
+  // Glowing ball vertical position
+  const ballY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
   // Countdown Timer Logic
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -192,16 +195,22 @@ export default function LandingPage() {
           
           <div className="relative w-full max-w-5xl mx-auto py-10 px-4">
             {/* Straight Glowing Vertical Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-[#00E5FF] via-[#00E5FF]/50 to-transparent shadow-[0_0_15px_rgba(0,229,255,0.8)] rounded-full z-0"></div>
+            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-[#00E5FF] via-[#00E5FF]/50 to-transparent shadow-[0_0_15px_rgba(0,229,255,0.8)] rounded-full z-0">
+              {/* Falling Glowing Ball */}
+              <motion.div 
+                className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_20px_5px_rgba(255,255,255,1)] z-20"
+                style={{ top: ballY }}
+              />
+            </div>
 
             <div className="flex flex-col space-y-24 relative z-10">
               {timelineEvents.map((event, idx) => (
                 <motion.div 
                   key={idx}
-                  initial={{ opacity: 0, x: idx % 2 === 0 ? -50 : 50 }}
+                  initial={{ opacity: 0, x: idx % 2 === 0 ? -150 : 150 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true, margin: "-150px" }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   className={`flex items-center w-full ${idx % 2 === 0 ? 'justify-start' : 'justify-end'} relative`}
                 >
                   {/* Connecting Dot */}
