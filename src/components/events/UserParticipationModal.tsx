@@ -192,22 +192,21 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
             
             <div className="flex flex-col gap-2">
               <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Emails or Roll Numbers (Comma separated)</label>
-              <div className="flex gap-2">
+              <div className="relative w-full">
                 <input 
                   type="text" 
                   value={identifiers}
                   onChange={(e) => setIdentifiers(e.target.value)}
                   required
-                  className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-['Inter',sans-serif] focus:outline-none focus:border-[#00E5FF] transition-colors"
+                  className="w-full pr-12 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-['Inter',sans-serif] focus:outline-none focus:border-[#00E5FF] transition-colors"
                   placeholder="e.g. 21CS01, 21CS02"
                 />
                 <button 
                   type="button"
                   onClick={handleFetch}
-                  className="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-3 rounded-lg font-['Orbitron',sans-serif] text-xs uppercase tracking-wider transition-all flex items-center gap-2 whitespace-nowrap"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#00E5FF] p-2 transition-colors flex items-center justify-center"
                 >
-                  <Search size={14} />
-                  Fetch Details
+                  <Search size={18} />
                 </button>
               </div>
               {fetchMessage && <p className="text-green-400 text-xs mt-1 font-['Inter',sans-serif]">{fetchMessage}</p>}
