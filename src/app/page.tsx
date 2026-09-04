@@ -28,9 +28,11 @@ export default function LandingPage() {
   });
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    setIsMobile(window.innerWidth < 768);
     // Exact Target Date: September 26, 2026 at 10:00:00 AM
     const targetDate = new Date("2026-09-26T10:00:00");
     
@@ -84,7 +86,7 @@ export default function LandingPage() {
       <main className="relative z-10 flex-grow grid md:grid-cols-2 gap-12 w-full max-w-7xl mx-auto items-center pb-20 pt-24">
         
         {/* LEFT COLUMN: Typography & Branding */}
-        <div className="flex flex-col items-start space-y-6">
+        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6 w-full mx-auto justify-center">
           
           <motion.p 
             initial={{ opacity: 0, y: 50 }}
@@ -101,7 +103,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-            className="border border-white/20 bg-white/5 backdrop-blur-md p-6 md:p-8 rounded-lg shadow-[0_0_30px_rgba(0,229,255,0.1)] border-l-4 border-l-[#00E5FF] w-full max-w-lg relative overflow-hidden"
+            className="border border-white/20 bg-white/5 backdrop-blur-md p-6 md:p-8 rounded-lg shadow-[0_0_30px_rgba(0,229,255,0.1)] border-l-4 border-l-[#00E5FF] w-full max-w-lg relative overflow-hidden flex flex-col items-center justify-center mx-auto"
           >
              {/* Subtle reflection overlay inside the box */}
             <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
@@ -132,7 +134,7 @@ export default function LandingPage() {
           
           {/* Floating Logo Area */}
           <motion.div 
-            animate={{ y: [-15, 15, -15] }}
+            animate={isMobile ? { y: 0 } : { y: [-15, 15, -15] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             className="relative flex items-center justify-center"
           >
@@ -194,11 +196,20 @@ export default function LandingPage() {
         <div ref={timelineRef} className="relative w-full flex flex-col items-center">
           
           <div className="relative w-full max-w-5xl mx-auto py-10 px-4">
-            {/* Straight Glowing Vertical Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-[#00E5FF] via-[#00E5FF]/50 to-transparent shadow-[0_0_15px_rgba(0,229,255,0.8)] rounded-full z-0">
+            {/* The Track: Faded Background Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-white/10 z-0"></div>
+            
+            {/* The Draw Line: Dynamic Scroll-Linked Line */}
+            <motion.div 
+              className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.8)] origin-top z-0"
+              style={{ scaleY: scrollYProgress }}
+            />
+
+            {/* The Gliding Ball Container */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 z-10 pointer-events-none">
               {/* Falling Glowing Ball */}
               <motion.div 
-                className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_20px_5px_rgba(255,255,255,1)] z-20"
+                className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_15px_#fff]"
                 style={{ top: ballY }}
               />
             </div>
@@ -217,11 +228,11 @@ export default function LandingPage() {
                   <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-[#050505] border-4 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.8)] z-10"></div>
                   
                   {/* Content Box */}
-                  <div className={`w-5/12 ${idx % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                    <div className="backdrop-blur-md bg-white/5 border border-white/10 p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:border-[#E07020]/50 transition-colors duration-300">
-                      <span className="font-['Orbitron',sans-serif] text-[#E07020] font-bold text-lg tracking-widest">{event.time}</span>
-                      <h3 className="font-['Orbitron',sans-serif] text-xl font-bold text-white mt-2 uppercase">{event.title}</h3>
-                      <p className="font-['Inter',sans-serif] text-slate-400 mt-2">{event.desc}</p>
+                  <div className={`w-[45vw] md:w-5/12 ${idx % 2 === 0 ? 'pr-4 md:pr-8 text-right' : 'pl-4 md:pl-8 text-left'}`}>
+                    <div className={`backdrop-blur-md bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:border-[#E07020]/50 transition-colors duration-300 break-words whitespace-normal w-[40vw] md:w-64 inline-block ${idx % 2 === 0 ? 'text-right' : 'text-left'}`}>
+                      <span className="font-['Orbitron',sans-serif] text-[#E07020] font-bold text-xs md:text-sm tracking-widest block">{event.time}</span>
+                      <h3 className="font-['Orbitron',sans-serif] text-sm md:text-lg font-bold text-white mt-1 md:mt-2 uppercase">{event.title}</h3>
+                      <p className="font-['Inter',sans-serif] text-xs md:text-sm text-slate-400 mt-1 md:mt-2">{event.desc}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -230,7 +241,7 @@ export default function LandingPage() {
           </div>
 
           {/* Timeline Finale: SPARKZ26 Fill Animation */}
-          <div className="relative w-full flex justify-center items-center z-10 pt-10 pb-20 px-8">
+          <div className="relative w-full flex justify-center items-center z-10 pt-10 pb-20 px-8 text-center mx-auto">
             {/* Outline Text */}
             <h1 className="font-['Orbitron',sans-serif] text-[16vw] md:text-[12vw] font-black text-transparent relative z-10 uppercase tracking-tighter leading-none flex pr-4">
               <span style={{ WebkitTextStroke: "2px rgba(255, 255, 255, 0.4)" }}>SPARK</span>
