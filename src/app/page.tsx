@@ -221,7 +221,7 @@ export default function LandingPage() {
                   initial={{ opacity: 0, x: idx % 2 === 0 ? -150 : 150 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-150px" }}
-                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
                   className={`flex items-center w-full ${idx % 2 === 0 ? 'justify-start' : 'justify-end'} relative`}
                 >
                   {/* Connecting Dot */}
@@ -229,7 +229,7 @@ export default function LandingPage() {
                   
                   {/* Content Box */}
                   <div className={`w-[45vw] md:w-5/12 ${idx % 2 === 0 ? 'pr-4 md:pr-8 text-right' : 'pl-4 md:pl-8 text-left'}`}>
-                    <div className={`backdrop-blur-md bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:border-[#E07020]/50 transition-colors duration-300 break-words whitespace-normal w-[40vw] md:w-64 inline-block ${idx % 2 === 0 ? 'text-right' : 'text-left'}`}>
+                    <div className={`backdrop-blur-md bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:border-[#E07020]/50 transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation cursor-pointer break-words whitespace-normal w-[40vw] md:w-64 inline-block ${idx % 2 === 0 ? 'text-right' : 'text-left'}`}>
                       <span className="font-['Orbitron',sans-serif] text-[#E07020] font-bold text-xs md:text-sm tracking-widest block">{event.time}</span>
                       <h3 className="font-['Orbitron',sans-serif] text-sm md:text-lg font-bold text-white mt-1 md:mt-2 uppercase">{event.title}</h3>
                       <p className="font-['Inter',sans-serif] text-xs md:text-sm text-slate-400 mt-1 md:mt-2">{event.desc}</p>

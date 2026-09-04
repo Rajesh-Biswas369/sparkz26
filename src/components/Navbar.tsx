@@ -96,7 +96,7 @@ export default function Navbar() {
                 onClick={link.name === "Contact" ? handleContactClick : undefined}
               >
                 <button 
-                  className="backdrop-blur-md bg-white/5 border border-[#00E5FF]/40 text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#00E5FF] hover:text-black transition-colors duration-300 uppercase"
+                  className="backdrop-blur-md bg-white/5 border border-[#00E5FF]/40 text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#00E5FF] hover:text-black transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase"
                   style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0 100%)" }}
                 >
                   {link.name}
@@ -108,7 +108,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2 ml-2">
                 <Link href="/dashboard">
                   <button 
-                    className="backdrop-blur-md bg-[#00E5FF]/20 border border-[#00E5FF] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#00E5FF] hover:text-black transition-colors duration-300 uppercase shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+                    className="backdrop-blur-md bg-[#00E5FF]/20 border border-[#00E5FF] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#00E5FF] hover:text-black transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(0,229,255,0.2)]"
                     style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0 100%)" }}
                   >
                     Dashboard
@@ -117,7 +117,7 @@ export default function Navbar() {
                 {pathname !== "/dashboard" && (
                   <button 
                     onClick={handleLogout}
-                    className="backdrop-blur-md bg-[#E07020]/20 border border-[#E07020] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#E07020] hover:text-white transition-colors duration-300 uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
+                    className="backdrop-blur-md bg-[#E07020]/20 border border-[#E07020] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#E07020] hover:text-white transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
                     style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0 100%)" }}
                   >
                     Logout
@@ -127,7 +127,7 @@ export default function Navbar() {
             ) : (
               <Link href="/login" className="ml-2">
                 <button 
-                  className="backdrop-blur-md bg-[#E07020]/20 border border-[#E07020] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#E07020] hover:text-white transition-colors duration-300 uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
+                  className="backdrop-blur-md bg-[#E07020]/20 border border-[#E07020] text-white px-6 py-2 text-sm font-['Orbitron',sans-serif] tracking-widest hover:bg-[#E07020] hover:text-white transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
                   style={{ clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0 100%)" }}
                 >
                   Login
@@ -140,7 +140,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-[#00E5FF] p-2 hover:bg-white/5 rounded-md transition-colors"
+              className="text-[#00E5FF] p-2 hover:bg-white/5 rounded-md transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation"
             >
               <Menu size={28} />
             </button>
@@ -155,7 +155,7 @@ export default function Navbar() {
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "tween", duration: 0.3 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
             className="fixed inset-0 z-[100] bg-[#050505] flex flex-col pt-6 px-6"
           >
             <div className="flex justify-between items-center w-full mb-12">
@@ -171,7 +171,7 @@ export default function Navbar() {
               </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="text-white p-2 hover:bg-white/10 rounded-full transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation"
               >
                 <X size={32} />
               </button>
@@ -193,7 +193,7 @@ export default function Navbar() {
                   scroll={true}
                 >
                   <button 
-                    className="w-full bg-white/5 border border-[#00E5FF]/40 text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#00E5FF] active:text-black transition-colors uppercase"
+                    className="w-full bg-white/5 border border-[#00E5FF]/40 text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#00E5FF] active:text-black transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase"
                     style={{ clipPath: "polygon(5% 0, 100% 0, 95% 100%, 0 100%)" }}
                   >
                     {link.name}
@@ -205,7 +205,7 @@ export default function Navbar() {
                 <div className="flex flex-col gap-4 w-full mt-4">
                   <Link href="/dashboard" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
                     <button 
-                      className="w-full bg-[#00E5FF]/20 border border-[#00E5FF] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#00E5FF] active:text-black transition-colors uppercase shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+                      className="w-full bg-[#00E5FF]/20 border border-[#00E5FF] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#00E5FF] active:text-black transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(0,229,255,0.2)]"
                       style={{ clipPath: "polygon(5% 0, 100% 0, 95% 100%, 0 100%)" }}
                     >
                       Dashboard
@@ -214,7 +214,7 @@ export default function Navbar() {
                   {pathname !== "/dashboard" && (
                     <button 
                       onClick={handleLogout}
-                      className="w-full bg-[#E07020]/20 border border-[#E07020] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#E07020] active:text-white transition-colors uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
+                      className="w-full bg-[#E07020]/20 border border-[#E07020] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#E07020] active:text-white transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
                       style={{ clipPath: "polygon(5% 0, 100% 0, 95% 100%, 0 100%)" }}
                     >
                       Logout
@@ -224,7 +224,7 @@ export default function Navbar() {
               ) : (
                 <Link href="/login" className="w-full mt-4" onClick={() => setIsMobileMenuOpen(false)}>
                   <button 
-                    className="w-full bg-[#E07020]/20 border border-[#E07020] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#E07020] active:text-white transition-colors uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
+                    className="w-full bg-[#E07020]/20 border border-[#E07020] text-white py-4 text-lg font-['Orbitron',sans-serif] tracking-widest active:bg-[#E07020] active:text-white transition-all duration-75 active:scale-95 active:brightness-125 touch-manipulation uppercase shadow-[0_0_15px_rgba(224,112,32,0.2)]"
                     style={{ clipPath: "polygon(5% 0, 100% 0, 95% 100%, 0 100%)" }}
                   >
                     Login
