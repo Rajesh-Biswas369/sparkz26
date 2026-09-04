@@ -192,8 +192,8 @@ export default function LandingPage() {
           
           <div className="relative w-full max-w-5xl mx-auto py-10 px-4">
             {/* S-Curve SVG Background */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-[120px] pointer-events-none flex justify-center z-0">
-              <svg width="120" height="100%" viewBox="0 0 120 1200" preserveAspectRatio="none" className="overflow-visible drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">
+            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-[120px] h-full pointer-events-none flex justify-center z-0">
+              <svg viewBox="0 0 120 1200" preserveAspectRatio="none" className="h-full w-full overflow-visible drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">
                 <defs>
                   <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#00E5FF" />
