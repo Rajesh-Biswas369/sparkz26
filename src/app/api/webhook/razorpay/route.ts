@@ -33,13 +33,14 @@ export async function POST(req: NextRequest) {
     if (body.event === 'payment.captured') {
       const amountInPaise = body.payload.payment.entity.amount;
       const amountInRupees = amountInPaise / 100;
+      const adjustedAmount = amountInRupees - 1;
 
       const treasuryRef = doc(db, 'treasury', 'master_ledger');
       await updateDoc(treasuryRef, { 
-        online_collected: increment(amountInRupees) 
+        online_collected: increment(adjustedAmount) 
       });
       
-      console.log(`Successfully processed payment: ${amountInRupees} INR`);
+      console.log(`Successfully processed payment: ${amountInRupees} INR, added ${adjustedAmount} INR to treasury`);
     }
 
     return NextResponse.json({ status: 'ok' });
