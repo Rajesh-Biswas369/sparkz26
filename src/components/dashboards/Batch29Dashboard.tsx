@@ -212,8 +212,8 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
         <div className="w-full flex flex-col md:flex-row items-center justify-between bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-6 shadow-[0_0_30px_rgba(0,229,255,0.1)]">
           <div className="flex items-center space-x-6">
             <div className="w-20 h-20 rounded-full border-2 border-[#00E5FF] overflow-hidden flex items-center justify-center bg-black">
-              {auth.currentUser?.photoURL ? (
-                <img src={auth.currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
+            {(userData?.profile_image_url || auth?.currentUser?.photoURL) ? (
+              <img src={userData?.profile_image_url || auth?.currentUser?.photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <User size={40} className="text-[#00E5FF]" />
               )}
