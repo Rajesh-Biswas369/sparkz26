@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import { LogOut, Users, Star, QrCode, Wallet } from 'lucide-react';
+import { LogOut, Users, Star, QrCode, Wallet, FileText } from 'lucide-react';
 import QRScanner from './QRScanner';
 import StudentRecords from '../shared/StudentRecords';
 import CulturalParticipations from '../shared/CulturalParticipations';
 import MasterPaymentRequests from '../shared/MasterPaymentRequests';
+import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
 
 interface MasterAdminDashboardProps {
@@ -21,7 +22,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
   const [completedExpensesList, setCompletedExpensesList] = useState<any[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests' | 'absence_requests'>('students');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -159,6 +160,13 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('absence_requests')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'absence_requests' ? 'bg-[#00E5FF]/10 border-l-4 border-[#00E5FF] text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]' : 'text-gray-400 hover:text-[#00E5FF] hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <FileText className="w-5 h-5 shrink-0" />
+            <span className="truncate">Absence Requests</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -167,6 +175,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'scanner' && <QRScanner />}
           {activeTab === 'payment_requests' && <MasterPaymentRequests />}
+          {activeTab === 'absence_requests' && <MasterAbsenceRequests />}
         </div>
 
         {/* Right Column: Mini Analytics / Action Panel */}

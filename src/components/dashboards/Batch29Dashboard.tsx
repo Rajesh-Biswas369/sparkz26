@@ -31,6 +31,7 @@ const StatusBadge = ({ label, status, timestamp }: { label: string, status: bool
 export default function Batch29Dashboard({ userData }: { userData: any }) {
   const router = useRouter();
   const [absenceReason, setAbsenceReason] = useState('');
+  const [absenceDocLink, setAbsenceDocLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const qrRef = React.useRef<HTMLDivElement>(null);
@@ -115,10 +116,12 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
         const userDoc = querySnapshot.docs[0];
         await updateDoc(userDoc.ref, {
           absence_reason: absenceReason,
+          absence_doc_link: absenceDocLink,
           absence_status: 'pending'
         });
         setSubmitMessage('Your absence request has been successfully submitted.');
         setAbsenceReason('');
+        setAbsenceDocLink('');
       } else {
         setSubmitMessage('Error: User document not found.');
       }
@@ -376,19 +379,18 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
               />
               
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="relative">
+                <div className="relative flex-grow md:mr-4">
+                  <p className="text-xs text-white/70 mb-2 font-['Inter',sans-serif]">
+                    Upload your proof document to <a href="https://drive.google.com/drive/folders/1ih7OZkSVCimunRyVTXYzIWkXBEEcPOp3?usp=drive_link" target="_blank" rel="noopener noreferrer" className="text-[#00E5FF] hover:underline">this Google Drive folder</a> and paste the link below:
+                  </p>
                   <input 
-                    type="file" 
-                    id="proof-upload"
-                    className="hidden"
+                    type="url"
+                    placeholder="Paste Google Drive link here..."
+                    value={absenceDocLink}
+                    onChange={(e) => setAbsenceDocLink(e.target.value)}
+                    required
+                    className="w-full bg-black/40 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 focus:outline-none focus:border-[#00E5FF]/50 focus:ring-1 focus:ring-[#00E5FF]/50 transition-all font-['Inter',sans-serif] text-sm"
                   />
-                  <label 
-                    htmlFor="proof-upload"
-                    className="flex items-center space-x-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-full text-white cursor-pointer transition-all font-['Inter',sans-serif] text-sm"
-                  >
-                    <UploadCloud size={18} />
-                    <span>Attach Proof Document</span>
-                  </label>
                 </div>
 
                 <button

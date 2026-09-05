@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot, setDoc, collection, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import { LogOut, Users, Star, Settings, DollarSign } from 'lucide-react';
+import { LogOut, Users, Star, Settings, DollarSign, FileText } from 'lucide-react';
 import StudentRecords from '../shared/StudentRecords';
 import CulturalParticipations from '../shared/CulturalParticipations';
 import AdminGodPaymentRequests from '../shared/AdminGodPaymentRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
+import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import { Wallet } from 'lucide-react';
 
 interface AdminGodDashboardProps {
@@ -25,7 +26,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -214,6 +215,13 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('absence_requests')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'absence_requests' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <FileText className="w-5 h-5 shrink-0" />
+            <span className="truncate">Absence Requests</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -221,6 +229,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
           {activeTab === 'students' && <StudentRecords />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'payment_requests' && <AdminGodPaymentRequests />}
+          {activeTab === 'absence_requests' && <MasterAbsenceRequests />}
           
           {activeTab === 'settings' && (
             <div className="flex flex-col h-full">

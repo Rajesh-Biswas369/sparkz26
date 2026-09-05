@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Users, Download, Search } from 'lucide-react';
+import { Users, Download, Search, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -239,15 +239,31 @@ export default function StudentRecords() {
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{student.tshirt_size || 'N/A'}</td>
                   <td className="p-4">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.entry_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
-                        ENTRY
-                      </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.breakfast_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
-                        B-FAST
-                      </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.lunch_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
-                        LUNCH
-                      </span>
+                      {student.is_absent ? (
+                        <>
+                          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
+                            ENTRY <X size={10} className="text-red-400" />
+                          </span>
+                          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
+                            B-FAST <X size={10} className="text-red-400" />
+                          </span>
+                          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
+                            LUNCH <X size={10} className="text-red-400" />
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.entry_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
+                            ENTRY
+                          </span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.breakfast_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
+                            B-FAST
+                          </span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.lunch_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
+                            LUNCH
+                          </span>
+                        </>
+                      )}
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.tshirt_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
                         TSHIRT
                       </span>
