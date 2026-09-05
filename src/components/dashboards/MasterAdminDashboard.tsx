@@ -123,7 +123,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
       </div>
 
       {/* Main Layout Structure */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-6 mb-16">
         
         {/* Left Column: Vertical Navigation Panel */}
         <div className="lg:col-span-2 h-fit flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
