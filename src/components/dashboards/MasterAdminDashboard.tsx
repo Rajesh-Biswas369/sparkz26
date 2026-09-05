@@ -85,7 +85,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col relative z-10 pt-4 md:pt-10 px-4 md:px-8 max-w-7xl mx-auto overflow-visible">
+    <div className="w-full min-h-screen flex flex-col relative z-10 pt-4 md:pt-10 px-4 md:px-8 pb-40 max-w-7xl mx-auto overflow-visible">
       
       {/* Top Profile Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center bg-white/5 border border-[#00E5FF]/30 p-5 rounded-2xl mb-8 shadow-[0_0_20px_rgba(0,229,255,0.05)]">
@@ -162,7 +162,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
         </div>
 
         {/* Center Column: Dynamic Content Area */}
-        <div className="w-full lg:w-8/12 relative h-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
+        <div className="w-full lg:w-8/12 relative z-20 h-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
           {activeTab === 'students' && <StudentRecords />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'scanner' && <QRScanner />}
@@ -170,7 +170,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
         </div>
 
         {/* Right Column: Mini Analytics / Action Panel */}
-        <div className="w-full lg:w-2/12 relative h-auto bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_15px_rgba(224,112,32,0.15)]">
+        <div className="w-full lg:w-2/12 relative z-0 h-auto bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_15px_rgba(224,112,32,0.15)]">
           <h2 className="font-['Orbitron',sans-serif] text-sm text-white tracking-widest uppercase mb-4 flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-[#E07020] shadow-[0_0_8px_#E07020] rotate-45"></div>
             <span>Treasury Status</span>
