@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Star, Pencil, Download } from 'lucide-react';
+import { Star, Pencil, Download, Search } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import AddParticipantModal from '../dashboards/AddParticipantModal';
@@ -12,6 +12,7 @@ export default function CulturalParticipations() {
   const [participations, setParticipations] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingParticipation, setEditingParticipation] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const q = query(collection(db, "participations"));
@@ -33,6 +34,16 @@ export default function CulturalParticipations() {
   };
 
   const sortedParticipations = [...participations].sort((a, b) => (b.durationSeconds || 0) - (a.durationSeconds || 0));
+
+  let finalParticipations = sortedParticipations;
+  if (searchQuery.trim() !== '') {
+    const q = searchQuery.toLowerCase();
+    finalParticipations = finalParticipations.filter(p => 
+      (p.participantNames ? p.participantNames.join(', ').toLowerCase() : (p.participantName || '').toLowerCase()).includes(q) ||
+      (p.participantRolls ? p.participantRolls.join(', ').toLowerCase() : (p.rollNumber || '').toLowerCase()).includes(q) ||
+      (p.classAndSection || '').toLowerCase().includes(q)
+    );
+  }
 
   const downloadParticipationsPDF = () => {
     const doc = new jsPDF('landscape');
@@ -79,13 +90,24 @@ export default function CulturalParticipations() {
           </p>
         </div>
         
-        <div className="flex flex-col items-end gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 shrink-0 w-full sm:w-auto">
+          <div className="relative w-full sm:w-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search participants..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-[#111]/50 border border-gray-700 rounded-md pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF] outline-none w-full md:w-64 transition-all font-['Inter',sans-serif] text-sm"
+            />
+          </div>
+
           <button
             onClick={downloadParticipationsPDF}
-            className="bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap flex items-center gap-2 shadow-[0_0_10px_rgba(74,222,128,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.6)]"
+            className="bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap flex items-center gap-2 shadow-[0_0_10px_rgba(74,222,128,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.6)] w-full sm:w-auto justify-center"
           >
             <Download size={16} />
-            <span className="hidden md:inline">Download PDF</span>
+            <span className="inline">Download PDF</span>
           </button>
 
           <button
@@ -93,7 +115,7 @@ export default function CulturalParticipations() {
               setEditingParticipation(null);
               setIsModalOpen(true);
             }}
-            className="bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
+            className="bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.6)] w-full sm:w-auto"
           >
             + ADD PARTICIPANT
           </button>
@@ -101,8 +123,8 @@ export default function CulturalParticipations() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-xl flex-grow">
-        {participations.length === 0 ? (
+      <div className="overflow-y-auto overflow-x-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-xl flex-grow min-h-[60vh]">
+        {finalParticipations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
             <p className="text-gray-400 font-['Inter',sans-serif]">No cultural participations recorded yet.</p>
           </div>
@@ -121,7 +143,7 @@ export default function CulturalParticipations() {
               </tr>
             </thead>
             <tbody>
-              {sortedParticipations.map((p, index) => (
+              {finalParticipations.map((p, index) => (
                 <tr key={p.id} className="hover:bg-white/5 border-b border-white/5 transition-colors">
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{index + 1}</td>
                   <td className="p-4 font-['Orbitron',sans-serif] font-bold text-white uppercase tracking-wide max-w-[200px] truncate" title={p.participantNames ? p.participantNames.join(', ') : p.participantName || 'N/A'}>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Users, Download } from 'lucide-react';
+import { Users, Download, Search } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -11,6 +11,7 @@ export default function StudentRecords() {
   const [students, setStudents] = useState<any[]>([]);
   const [activeStatus, setActiveStatus] = useState<'Registered' | 'Appeared'>('Registered');
   const [activeSection, setActiveSection] = useState<'Sec A' | 'Sec B'>('Sec A');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const q = query(collection(db, "users"), where("batch", "==", "29"));
@@ -42,6 +43,17 @@ export default function StudentRecords() {
     filteredStudents = filteredStudents.filter(s => s.section?.toUpperCase().startsWith('A'));
   } else if (activeSection === 'Sec B') {
     filteredStudents = filteredStudents.filter(s => s.section?.toUpperCase().startsWith('B'));
+  }
+
+  // 3. Filter by Search Query
+  if (searchQuery.trim() !== '') {
+    const q = searchQuery.toLowerCase();
+    filteredStudents = filteredStudents.filter(s => 
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.roll_number || '').toLowerCase().includes(q) ||
+      (s.email || '').toLowerCase().includes(q) ||
+      (s.contact_number || '').toLowerCase().includes(q)
+    );
   }
 
   // Sort logic
@@ -165,18 +177,29 @@ export default function StudentRecords() {
             </button>
           ))}
         </div>
-        
-        <button
-          onClick={exportToPDF}
-          className="ml-4 shrink-0 bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm flex items-center gap-2 whitespace-nowrap"
-        >
-          <Download size={16} />
-          <span className="hidden md:inline">Download PDF</span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 ml-0 md:ml-4 mt-4 sm:mt-0 w-full sm:w-auto">
+          <div className="relative w-full sm:w-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-[#111]/50 border border-gray-700 rounded-md pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF] outline-none w-full md:w-64 transition-all font-['Inter',sans-serif] text-sm"
+            />
+          </div>
+          <button
+            onClick={exportToPDF}
+            className="shrink-0 bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm flex items-center gap-2 whitespace-nowrap w-full sm:w-auto justify-center"
+          >
+            <Download size={16} />
+            <span className="inline">Download PDF</span>
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-xl mt-6 flex-grow">
+      <div className="overflow-y-auto overflow-x-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-xl mt-6 flex-grow min-h-[60vh]">
         {filteredStudents.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
             <p className="text-gray-400 font-['Inter',sans-serif]">No students found for this section.</p>
