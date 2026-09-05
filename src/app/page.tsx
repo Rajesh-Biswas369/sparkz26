@@ -93,7 +93,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-['Orbitron',sans-serif] text-[#00E5FF] tracking-[0.3em] text-sm md:text-base uppercase font-bold"
+            className="font-['Orbitron',sans-serif] text-white tracking-[0.3em] text-sm md:text-base uppercase font-bold"
           >
             J.U.E.E PRESENTS
           </motion.p>
