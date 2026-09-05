@@ -161,7 +161,7 @@ export default function StudentRecords() {
       </div>
       
       {/* Secondary Filters (Section) */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
           {['Sec A', 'Sec B'].map(sec => (
             <button
@@ -177,8 +177,8 @@ export default function StudentRecords() {
             </button>
           ))}
         </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 ml-0 md:ml-4 mt-4 sm:mt-0 w-full sm:w-auto">
-          <div className="relative w-full sm:w-auto">
+        <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+          <div className="relative w-full md:w-auto flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
@@ -190,10 +190,10 @@ export default function StudentRecords() {
           </div>
           <button
             onClick={exportToPDF}
-            className="shrink-0 bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm flex items-center gap-2 whitespace-nowrap w-full sm:w-auto justify-center"
+            className="shrink-0 bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all p-2 sm:px-4 sm:py-2 rounded-lg font-['Orbitron',sans-serif] text-sm flex items-center justify-center gap-2"
           >
             <Download size={16} />
-            <span className="inline">Download PDF</span>
+            <span className="hidden sm:inline">Download PDF</span>
           </button>
         </div>
       </div>
