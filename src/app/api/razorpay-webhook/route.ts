@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       // 3. Update Firestore using atomic increment
       const masterLedgerRef = db.collection('treasury').doc('master_ledger');
       await masterLedgerRef.set({
-        online: FieldValue.increment(adjustedAmount),
+        online_collected: FieldValue.increment(adjustedAmount),
         lastUpdated: new Date().toISOString()
       }, { merge: true });
     }

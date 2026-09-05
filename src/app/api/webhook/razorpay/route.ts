@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
       const treasuryRef = doc(db, 'treasury', 'master_ledger');
       await updateDoc(treasuryRef, { 
-        totalOnline: increment(amountInRupees) 
+        online_collected: increment(amountInRupees) 
       });
       
       console.log(`Successfully processed payment: ${amountInRupees} INR`);
