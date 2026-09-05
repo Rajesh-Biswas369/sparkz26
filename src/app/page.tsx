@@ -72,7 +72,7 @@ export default function LandingPage() {
     { role: "Design Team", names: ["Anik Khanra", "Bornita Mandal", "Disha Mahato", "Prakriti Ghosh", "Remon Saha"], Icon: PenTool },
     { role: "Photography", names: ["Debdeep Das", "Krishna Agarwal"], Icon: Camera },
     { role: "Cultural Team", names: ["Souvik Barua Chowdhury", "Trisha Bhadra", "Esha Bhadra", "Mohema Bhuiya", "Shubhrima Talukder", "Saumyadeep Nandi", "Swapnendu Sikdar"], Icon: Music },
-    { role: "Logistic", names: ["Souvik Barua Chowdhury", "Prosmit Das", "Rohit Pal / Rohit Mondal", "Sk Yaser Arafat", "Abhik Chatterjee", "Tanmoy Mahata", "Supratim Das", "Santanu Saha", "Habibul Haque (Logistics+Food)", "Shanku Das", "Shraban Mudi"], Icon: Truck },
+    { role: "Logistic", names: ["Souvik Barua Chowdhury", "Prosmit Das", "Rohit Mondal", "Sk Yaser Arafat", "Abhik Chatterjee", "Tanmoy Mahata", "Supratim Das", "Santanu Saha", "Habibul Haque (Logistics+Food)", "Shanku Das", "Shraban Mudi"], Icon: Truck },
     { role: "Registration & Discipline", names: ["Rajesh Biswas", "Kalpak Majumdar", "Debjit Goswami"], Icon: ShieldCheck },
   ];
 
