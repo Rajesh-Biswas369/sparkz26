@@ -79,32 +79,37 @@ export default function CulturalParticipations() {
   return (
     <div className="flex flex-col h-full">
       {/* Top Action Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] tracking-widest uppercase flex items-center gap-3 drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">
-            <Star className="text-[#00E5FF]" />
-            CULTURAL PARTICIPATIONS
-          </h2>
-          <p className="font-['Inter',sans-serif] text-sm text-gray-400 mt-1">
-            Total Entries: {participations.length} | Total Estimated Time: {formatTotalTime(totalDurationSeconds)}
-          </p>
-        </div>
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
         
-        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 shrink-0 w-full sm:w-auto">
-          <div className="relative w-full sm:w-auto">
+        {/* Left Side: Title, Stats, and Search */}
+        <div className="flex flex-col gap-4 w-full md:w-auto">
+          <div>
+            <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] tracking-widest uppercase flex items-center gap-3 drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">
+              <Star className="text-[#00E5FF]" />
+              CULTURAL PARTICIPATIONS
+            </h2>
+            <p className="font-['Inter',sans-serif] text-sm text-gray-400 mt-1">
+              Total Entries: {participations.length} | Total Estimated Time: {formatTotalTime(totalDurationSeconds)}
+            </p>
+          </div>
+          
+          <div className="relative w-full md:w-72 mt-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
               placeholder="Search participants..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#111]/50 border border-gray-700 rounded-md pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF] outline-none w-full md:w-64 transition-all font-['Inter',sans-serif] text-sm"
+              className="bg-[#111]/50 border border-gray-700 rounded-md pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF] outline-none w-full transition-all font-['Inter',sans-serif] text-sm"
             />
           </div>
-
+        </div>
+        
+        {/* Right Side: Action Buttons */}
+        <div className="flex flex-col gap-3 w-full md:w-auto shrink-0 mt-4 md:mt-0">
           <button
             onClick={downloadParticipationsPDF}
-            className="bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap flex items-center gap-2 shadow-[0_0_10px_rgba(74,222,128,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.6)] w-full sm:w-auto justify-center"
+            className="bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap flex items-center justify-center gap-2 shadow-[0_0_10px_rgba(74,222,128,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.6)] w-full md:w-auto"
           >
             <Download size={16} />
             <span className="inline">Download PDF</span>
@@ -115,7 +120,7 @@ export default function CulturalParticipations() {
               setEditingParticipation(null);
               setIsModalOpen(true);
             }}
-            className="bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.6)] w-full sm:w-auto"
+            className="bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all px-4 py-2 rounded-lg font-['Orbitron',sans-serif] text-sm tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(0,229,255,0.2)] hover:shadow-[0_0_20px_rgba(0,229,255,0.6)] w-full md:w-auto text-center"
           >
             + ADD PARTICIPANT
           </button>
