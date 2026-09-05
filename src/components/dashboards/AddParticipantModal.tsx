@@ -338,7 +338,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF] hover:bg-[#00E5FF] hover:text-black font-['Orbitron',sans-serif] font-bold py-4 rounded-xl uppercase tracking-widest transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:shadow-[0_0_25px_rgba(0,229,255,0.6)] disabled:opacity-50"
+            className="w-full mt-4 mb-8 bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF] hover:bg-[#00E5FF] hover:text-black font-['Orbitron',sans-serif] font-bold py-4 rounded-xl uppercase tracking-widest transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:shadow-[0_0_25px_rgba(0,229,255,0.6)] disabled:opacity-50"
           >
             {loading ? 'Submitting...' : (editData ? 'Update Entry' : 'Submit Entry')}
           </button>

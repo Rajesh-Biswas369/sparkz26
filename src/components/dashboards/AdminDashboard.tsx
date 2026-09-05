@@ -65,7 +65,7 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col relative z-10 pt-4 md:pt-10 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
+    <div className="w-full min-h-screen flex flex-col relative z-10 pt-4 md:pt-10 px-4 md:px-8 max-w-7xl mx-auto overflow-visible">
       
       {/* Top Profile Header */}
       <div className="w-full flex flex-col md:flex-row items-center justify-between bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,229,255,0.1)] mb-8">
@@ -105,10 +105,10 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
       </div>
 
       {/* Main Layout Structure */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-6 mb-16">
+      <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 mb-16 relative h-auto">
         
         {/* Left Column: Vertical Navigation Panel */}
-        <div className="lg:col-span-2 h-fit flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div className="w-full lg:w-2/12 relative h-auto flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
           <h3 className="font-['Orbitron',sans-serif] text-xs text-gray-400 uppercase tracking-widest mb-2 px-2">Menu</h3>
           <button
             onClick={() => setActiveTab('students')}
@@ -141,7 +141,7 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
         </div>
 
         {/* Center Column: Dynamic Content Area */}
-        <div className="lg:col-span-8 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
+        <div className="w-full lg:w-8/12 relative h-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
           {activeTab === 'students' && <StudentRecords />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'scanner' && <QRScanner />}
@@ -149,7 +149,7 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
         </div>
 
         {/* Right Column: Mini Analytics / Action Panel */}
-        <div className="lg:col-span-2 h-fit bg-black/40 backdrop-blur-md border border-[#00E5FF]/20 rounded-xl p-5 shadow-[0_0_15px_rgba(0,229,255,0.1)]">
+        <div className="w-full lg:w-2/12 relative h-auto bg-black/40 backdrop-blur-md border border-[#00E5FF]/20 rounded-xl p-5 shadow-[0_0_15px_rgba(0,229,255,0.1)]">
           <h2 className="font-['Orbitron',sans-serif] text-sm text-white tracking-widest uppercase mb-4 flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-[#00E5FF] shadow-[0_0_8px_#00E5FF] rotate-45"></div>
             <span>Treasury Status</span>
