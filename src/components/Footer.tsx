@@ -10,7 +10,7 @@ export default function Footer() {
           <span className="font-['Orbitron',sans-serif] text-[#00E5FF] tracking-[0.2em] text-xs uppercase font-bold">
             J.U.E.E. Presents
           </span>
-          <h2 className="font-['Orbitron',sans-serif] text-3xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(0,229,255,0.3)]">
+          <h2 className="liquid-text font-['Orbitron',sans-serif] text-3xl font-black uppercase tracking-widest drop-shadow-[0_0_10px_rgba(0,229,255,0.3)] w-fit">
             SPARKZ 2k26
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
