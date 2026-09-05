@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
         {/* Column 1: Brand */}
         <div className="flex flex-col space-y-4">
-          <span className="font-['Orbitron',sans-serif] text-[#00E5FF] tracking-[0.2em] text-xs uppercase font-bold">
+          <span className="font-['Orbitron',sans-serif] text-white tracking-[0.2em] text-xs uppercase font-bold">
             J.U.E.E. Presents
           </span>
           <h2 className="liquid-text font-['Orbitron',sans-serif] text-3xl font-black uppercase tracking-widest drop-shadow-[0_0_10px_rgba(0,229,255,0.3)] w-fit">
