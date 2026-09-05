@@ -5,13 +5,28 @@ import { Orbitron } from "next/font/google";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 
 const orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "700"] });
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
   const router = useRouter();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Please enter your email address in the field above to reset your password.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset link sent to your email!");
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      alert(error.message || "Failed to send password reset email.");
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -52,6 +67,8 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent border border-white/20 rounded-full px-6 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF] transition-all"
                 required
                 autoComplete="off"
@@ -139,12 +156,13 @@ export default function LoginPage() {
               Sign Up
             </Link>
           </p>
-          <Link
-            href="/forgot-password"
-            className="text-sm text-gray-300 hover:text-white transition-colors"
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Forgot Password
-          </Link>
+          </button>
         </div>
       </div>
     </main>
