@@ -91,8 +91,8 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
       <div className="flex flex-col sm:flex-row justify-between items-center bg-white/5 border border-[#00E5FF]/30 p-5 rounded-2xl mb-8 shadow-[0_0_20px_rgba(0,229,255,0.05)]">
         <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <div className="w-14 h-14 rounded-full border-2 border-[#00E5FF] flex items-center justify-center text-xl font-['Orbitron',sans-serif] text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.5)]">
-            {userData?.profile_image_url ? (
-              <img src={userData.profile_image_url} alt="Profile" className="w-full h-full object-cover rounded-full" />
+            {(userData?.profile_image_url || auth?.currentUser?.photoURL) ? (
+              <img src={userData?.profile_image_url || auth?.currentUser?.photoURL} alt="Profile" className="w-full h-full object-cover rounded-full" />
             ) : (
               userData?.name?.charAt(0) || "M"
             )}

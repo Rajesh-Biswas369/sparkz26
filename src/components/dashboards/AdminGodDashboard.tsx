@@ -145,8 +145,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
         <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="flex items-center space-x-6 mb-6 md:mb-0 z-10">
           <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-red-500 overflow-hidden shadow-[0_0_15px_#ef4444] flex items-center justify-center bg-gray-900">
-            {userData?.profile_image_url ? (
-              <img src={userData?.profile_image_url} alt="Profile" className="w-full h-full object-cover" />
+            {(userData?.profile_image_url || auth?.currentUser?.photoURL) ? (
+              <img src={userData?.profile_image_url || auth?.currentUser?.photoURL} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <span className="font-['Orbitron',sans-serif] text-2xl text-red-500 uppercase">
                 {userData?.name?.charAt(0) || "G"}

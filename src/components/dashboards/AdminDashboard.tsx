@@ -71,8 +71,8 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
       <div className="w-full flex flex-col md:flex-row items-center justify-between bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,229,255,0.1)] mb-8">
         <div className="flex items-center space-x-6 mb-6 md:mb-0">
           <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#00E5FF] overflow-hidden shadow-[0_0_15px_#00E5FF] flex items-center justify-center bg-gray-900">
-            {userData?.profile_image_url ? (
-              <img src={userData.profile_image_url} alt="Profile" className="w-full h-full object-cover" />
+            {(userData?.profile_image_url || auth?.currentUser?.photoURL) ? (
+              <img src={userData?.profile_image_url || auth?.currentUser?.photoURL} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <span className="font-['Orbitron',sans-serif] text-2xl text-[#00E5FF] uppercase">
                 {userData?.name?.charAt(0) || "A"}
