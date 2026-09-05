@@ -83,7 +83,7 @@ export default function Navbar() {
               height={32} 
               className="rounded-full inline-block mr-3 border border-[#00E5FF]/50 shadow-[0_0_10px_rgba(0,229,255,0.3)]" 
             />
-            <span className="font-['Orbitron',sans-serif] font-bold text-xl tracking-wider text-[#00E5FF]">SPARKZ'26</span>
+            <span className="liquid-text font-['Orbitron',sans-serif] font-bold text-xl tracking-wider">SPARKZ'26</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -167,7 +167,7 @@ export default function Navbar() {
                   height={32} 
                   className="rounded-full inline-block mr-3 border border-[#00E5FF]/50 shadow-[0_0_10px_rgba(0,229,255,0.3)]" 
                 />
-                <span className="font-['Orbitron',sans-serif] font-bold text-xl tracking-wider text-[#00E5FF]">SPARKZ'26</span>
+                <span className="liquid-text font-['Orbitron',sans-serif] font-bold text-xl tracking-wider">SPARKZ'26</span>
               </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
