@@ -48,6 +48,8 @@ export default function MasterAbsenceRequests() {
         entry_scanned: false,
         breakfast_scanned: false,
         lunch_scanned: false,
+        tshirt_scanned: true,
+        tshirt_scanned_time: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata', hour12: true }),
         is_absent: true // Flag to show cross mark in StudentRecords
       });
     } catch (error) {
