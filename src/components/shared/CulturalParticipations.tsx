@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { collection, query, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Star, Pencil, Download, Search } from 'lucide-react';
+import { Star, Pencil, Download, Search, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import AddParticipantModal from '../dashboards/AddParticipantModal';
@@ -24,6 +24,16 @@ export default function CulturalParticipations() {
 
     return () => unsub();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this participation?")) {
+      try {
+        await deleteDoc(doc(db, "participations", id));
+      } catch (error) {
+        console.error("Error deleting participation:", error);
+      }
+    }
+  };
 
   const toggleParticipantTick = (id: string) => {
     setTickedParticipants(prev => {
@@ -196,16 +206,25 @@ export default function CulturalParticipations() {
                   </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{p.durationFormatted || '00:00'}</td>
                   <td className="p-4 text-right">
-                    <button 
-                      onClick={() => {
-                        setEditingParticipation(p);
-                        setIsModalOpen(true);
-                      }}
-                      className="text-[#00E5FF] hover:text-white bg-[#00E5FF]/10 hover:bg-[#00E5FF]/30 p-2 rounded-lg transition-colors inline-flex items-center gap-2 font-['Orbitron',sans-serif] text-xs uppercase"
-                    >
-                      <Pencil size={14} />
-                      Edit
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={() => {
+                          setEditingParticipation(p);
+                          setIsModalOpen(true);
+                        }}
+                        className="text-[#00E5FF] hover:text-white bg-[#00E5FF]/10 hover:bg-[#00E5FF]/30 p-2 rounded-lg transition-colors inline-flex items-center gap-2 font-['Orbitron',sans-serif] text-xs uppercase"
+                      >
+                        <Pencil size={14} />
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(p.id)}
+                        className="text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500/30 p-2 rounded-lg transition-colors inline-flex items-center gap-2 font-['Orbitron',sans-serif] text-xs uppercase"
+                        title="Delete Participation"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
