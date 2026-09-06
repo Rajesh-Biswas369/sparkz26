@@ -13,6 +13,7 @@ export default function CulturalParticipations() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingParticipation, setEditingParticipation] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [tickedParticipants, setTickedParticipants] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const q = query(collection(db, "participations"));
@@ -24,7 +25,24 @@ export default function CulturalParticipations() {
     return () => unsub();
   }, []);
 
-  const totalDurationSeconds = participations.reduce((sum, p) => sum + (p.durationSeconds || 0), 0);
+  const toggleParticipantTick = (id: string) => {
+    setTickedParticipants(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const totalDurationSeconds = participations.reduce((sum, p) => {
+    if (tickedParticipants.has(p.id)) {
+      return sum;
+    }
+    return sum + (p.durationSeconds || 0);
+  }, 0);
 
   const formatTotalTime = (totalSecs: number) => {
     const h = Math.floor(totalSecs / 3600);
@@ -137,6 +155,7 @@ export default function CulturalParticipations() {
           <table className="w-full text-left text-sm whitespace-nowrap text-white">
             <thead>
               <tr>
+                <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10 w-12 text-center">Done</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Sl No.</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Participant Name</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Roll Number</th>
@@ -150,6 +169,14 @@ export default function CulturalParticipations() {
             <tbody>
               {finalParticipations.map((p, index) => (
                 <tr key={p.id} className="hover:bg-white/5 border-b border-white/5 transition-colors">
+                  <td className="p-4 text-center">
+                    <input
+                      type="checkbox"
+                      checked={tickedParticipants.has(p.id)}
+                      onChange={() => toggleParticipantTick(p.id)}
+                      className="w-4 h-4 rounded border-gray-600 bg-black/50 text-[#00E5FF] focus:ring-[#00E5FF] focus:ring-offset-gray-900 cursor-pointer accent-[#00E5FF]"
+                    />
+                  </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{index + 1}</td>
                   <td className="p-4 font-['Orbitron',sans-serif] font-bold text-white uppercase tracking-wide max-w-[200px] truncate" title={p.participantNames ? p.participantNames.join(', ') : p.participantName || 'N/A'}>
                     {p.participantNames ? p.participantNames.join(', ') : p.participantName || 'N/A'}
