@@ -261,19 +261,19 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
           
           {/* Left Column (REGISTRATION DETAILS) */}
           <div className="bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,229,255,0.1)] flex flex-col">
-            <div className="flex items-center justify-between w-full mb-6">
-              <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] uppercase tracking-widest flex items-center space-x-3">
-                <div className="w-2 h-2 bg-[#00E5FF] shadow-[0_0_10px_#00E5FF] rotate-45"></div>
-                <span>Registration Details</span>
+            <div className="w-full mb-6">
+              <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] uppercase tracking-widest leading-snug">
+                <div className="inline-block w-2 h-2 bg-[#00E5FF] shadow-[0_0_10px_#00E5FF] rotate-45 mr-3 mb-1"></div>
+                <span className="align-middle">Registration Details</span>
+                {allowRegistrationEdit && (
+                  <button
+                    onClick={() => setIsRegEditModalOpen(true)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 rounded hover:bg-[#00E5FF] hover:text-black transition-colors text-xs font-['Orbitron',sans-serif] tracking-widest ml-3 align-middle -mt-1"
+                  >
+                    <Edit2 size={14} /> EDIT
+                  </button>
+                )}
               </h2>
-              {allowRegistrationEdit && (
-                <button
-                  onClick={() => setIsRegEditModalOpen(true)}
-                  className="flex items-center justify-center gap-2 px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 rounded hover:bg-[#00E5FF] hover:text-black transition-colors text-xs font-['Orbitron',sans-serif] tracking-widest"
-                >
-                  <Edit2 size={14} /> EDIT
-                </button>
-              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-['Inter',sans-serif] bg-white/5 p-6 rounded-xl border border-white/10">
               <div className="flex flex-col space-y-1">
