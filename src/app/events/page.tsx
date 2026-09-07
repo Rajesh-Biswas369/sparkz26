@@ -48,8 +48,8 @@ const EVENTS = [
   },
   {
     id: 'recitation',
-    title: 'Recitation',
-    types: 'Solo',
+    title: 'POETRY/MUSICAL RECITATION',
+    types: 'Solo / Group',
     icon: <BookOpen className="w-8 h-8 text-[#00E5FF]" />,
     color: 'from-[#00E5FF]/20 to-[#00E5FF]/5',
     borderColor: 'border-[#00E5FF]',
