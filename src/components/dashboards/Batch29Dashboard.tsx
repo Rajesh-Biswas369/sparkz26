@@ -11,6 +11,8 @@ import { collection, query, where, getDocs, updateDoc, onSnapshot } from 'fireba
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import UserParticipationModal from '@/components/events/UserParticipationModal';
+import EditRegistrationModal from '@/components/shared/EditRegistrationModal';
+import { doc } from 'firebase/firestore';
 
 const StatusBadge = ({ label, status, timestamp }: { label: string, status: boolean | undefined, timestamp?: string }) => (
   <div className={`flex flex-col p-3 rounded-lg border ${status ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
@@ -42,6 +44,20 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [editData, setEditData] = useState<any>(null);
+
+  const [allowRegistrationEdit, setAllowRegistrationEdit] = useState(false);
+  const [isRegEditModalOpen, setIsRegEditModalOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (!db) return;
+    const unsubControls = onSnapshot(doc(db, "settings", "scanner_controls"), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setAllowRegistrationEdit(!!data.allow_registration_edit);
+      }
+    });
+    return () => unsubControls();
+  }, []);
 
   React.useEffect(() => {
     if (!userData?.email) return;
@@ -245,10 +261,20 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
           
           {/* Left Column (REGISTRATION DETAILS) */}
           <div className="bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,229,255,0.1)] flex flex-col">
-            <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] uppercase tracking-widest mb-6 flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#00E5FF] shadow-[0_0_10px_#00E5FF] rotate-45"></div>
-              <span>Registration Details</span>
-            </h2>
+            <div className="flex items-center justify-between w-full mb-6">
+              <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] uppercase tracking-widest flex items-center space-x-3">
+                <div className="w-2 h-2 bg-[#00E5FF] shadow-[0_0_10px_#00E5FF] rotate-45"></div>
+                <span>Registration Details</span>
+              </h2>
+              {allowRegistrationEdit && (
+                <button
+                  onClick={() => setIsRegEditModalOpen(true)}
+                  className="flex items-center justify-center gap-2 px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 rounded hover:bg-[#00E5FF] hover:text-black transition-colors text-xs font-['Orbitron',sans-serif] tracking-widest"
+                >
+                  <Edit2 size={14} /> EDIT
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-['Inter',sans-serif] bg-white/5 p-6 rounded-xl border border-white/10">
               <div className="flex flex-col space-y-1">
                 <span className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Roll Number</span>
@@ -422,6 +448,12 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
           editData={editData}
         />
       )}
+
+      <EditRegistrationModal
+        isOpen={isRegEditModalOpen}
+        onClose={() => setIsRegEditModalOpen(false)}
+        userData={userData}
+      />
     </div>
   );
 }

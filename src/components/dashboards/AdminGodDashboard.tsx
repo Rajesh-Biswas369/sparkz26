@@ -10,7 +10,8 @@ import CulturalParticipations from '../shared/CulturalParticipations';
 import AdminGodPaymentRequests from '../shared/AdminGodPaymentRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
 import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
-import { Wallet } from 'lucide-react';
+import AdminGodPermitEdit from '../shared/AdminGodPermitEdit';
+import { Wallet, Edit2 } from 'lucide-react';
 
 interface AdminGodDashboardProps {
   userData?: any;
@@ -26,7 +27,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -34,7 +35,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
     allow_entry: false,
     allow_tshirt: false,
     allow_breakfast: false,
-    allow_lunch: false
+    allow_lunch: false,
+    allow_registration_edit: false
   });
 
   useEffect(() => {
@@ -55,7 +57,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
           allow_entry: !!data.allow_entry,
           allow_tshirt: !!data.allow_tshirt,
           allow_breakfast: !!data.allow_breakfast,
-          allow_lunch: !!data.allow_lunch
+          allow_lunch: !!data.allow_lunch,
+          allow_registration_edit: !!data.allow_registration_edit
         });
       }
     });
@@ -222,6 +225,13 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <FileText className="w-5 h-5 shrink-0" />
             <span className="truncate">Absence Requests</span>
           </button>
+          <button
+            onClick={() => setActiveTab('permit_edit')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'permit_edit' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <Edit2 className="w-5 h-5 shrink-0" />
+            <span className="truncate">Permit Edit</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -230,6 +240,12 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'payment_requests' && <AdminGodPaymentRequests />}
           {activeTab === 'absence_requests' && <MasterAbsenceRequests />}
+          {activeTab === 'permit_edit' && (
+            <AdminGodPermitEdit 
+              allowEdit={scannerControls.allow_registration_edit} 
+              onToggle={() => toggleControl('allow_registration_edit')}
+            />
+          )}
           
           {activeTab === 'settings' && (
             <div className="flex flex-col h-full">
@@ -239,7 +255,9 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {Object.entries(scannerControls).map(([key, value]) => {
+                {Object.entries(scannerControls)
+                  .filter(([key]) => key !== 'allow_registration_edit')
+                  .map(([key, value]) => {
                   const label = key.replace("allow_", "").toUpperCase();
                   return (
                     <button
