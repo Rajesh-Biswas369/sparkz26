@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Edit2, ToggleLeft, ToggleRight, History } from 'lucide-react';
+import { Edit2, ToggleLeft, ToggleRight, History, Trash2, DownloadCloud } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface AdminGodPermitEditProps {
   allowEdit: boolean;
@@ -32,6 +34,55 @@ export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPerm
 
     return () => unsubscribe();
   }, []);
+
+  const handleDeleteLog = async (id: string) => {
+    if (confirm("Are you sure you want to delete this edit history log?")) {
+      try {
+        await deleteDoc(doc(db, "registration_edits", id));
+      } catch (err) {
+        console.error("Error deleting log:", err);
+      }
+    }
+  };
+
+  const downloadHistoryPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(16);
+    doc.text("SPARKZ'26 Edit History Log", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+    const tableColumn = ["Date & Time", "Student", "Previous Details", "New Details"];
+    const tableRows: any[] = [];
+
+    history.forEach(log => {
+      const dateTime = new Date(log.timestamp).toLocaleString();
+      const studentInfo = `${log.name}\n${log.email}`;
+      
+      const prevDataStr = Object.entries(log.previousData || {})
+        .map(([k, v]) => `${k.replace('_', ' ')}: ${v}`)
+        .join('\n');
+        
+      const newDataStr = Object.entries(log.newData || {})
+        .map(([k, v]) => `${k.replace('_', ' ')}: ${v}`)
+        .join('\n');
+
+      tableRows.push([dateTime, studentInfo, prevDataStr, newDataStr]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [0, 229, 255], textColor: [0, 0, 0] }
+    });
+
+    doc.save("Sparkz26_Edit_History.pdf");
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -68,11 +119,19 @@ export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPerm
 
       {/* History Table */}
       <div className="flex flex-col flex-grow bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-        <div className="p-4 border-b border-white/10 bg-black/40 flex items-center gap-2">
-          <History className="text-blue-500" size={18} />
-          <h3 className="font-['Orbitron',sans-serif] text-sm text-white tracking-widest uppercase">
-            Edit History Log
-          </h3>
+        <div className="p-4 border-b border-white/10 bg-black/40 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <History className="text-blue-500" size={18} />
+            <h3 className="font-['Orbitron',sans-serif] text-sm text-white tracking-widest uppercase">
+              Edit History Log
+            </h3>
+          </div>
+          <button 
+            onClick={downloadHistoryPDF}
+            className="flex items-center gap-2 text-xs font-['Orbitron',sans-serif] tracking-widest text-[#00E5FF] hover:bg-[#00E5FF]/10 px-3 py-1.5 rounded border border-[#00E5FF]/30 transition-colors"
+          >
+            <DownloadCloud size={16} /> PDF
+          </button>
         </div>
         
         <div className="overflow-x-auto">
@@ -83,16 +142,17 @@ export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPerm
                 <th className="p-4 font-medium">Student</th>
                 <th className="p-4 font-medium">Previous Details</th>
                 <th className="p-4 font-medium">New Details</th>
+                <th className="p-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm font-['Inter',sans-serif]">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">Loading history...</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">Loading history...</td>
                 </tr>
               ) : history.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">No edit history found.</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">No edit history found.</td>
                 </tr>
               ) : (
                 history.map((log) => (
@@ -119,6 +179,15 @@ export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPerm
                           <li key={key}><span className="capitalize text-white/50">{key.replace('_', ' ')}:</span> {String(value)}</li>
                         ))}
                       </ul>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDeleteLog(log.id)}
+                        className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded transition-colors"
+                        title="Delete log"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))
