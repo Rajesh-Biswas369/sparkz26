@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Star, Users, Wallet, Target, MessageSquare, PenTool, Camera, Music, Truck, ShieldCheck } from "lucide-react";
+import { Star, Users, Wallet, Target, MessageSquare, PenTool, Camera, Music, Truck, ShieldCheck, ClipboardList } from "lucide-react";
 import Footer from "@/components/Footer";
 
 export default function LandingPage() {
@@ -73,7 +73,8 @@ export default function LandingPage() {
     { role: "Photography", names: ["Debdeep Das", "Krishna Agarwal"], Icon: Camera },
     { role: "Cultural Team", names: ["Souvik Barua Chowdhury", "Trisha Bhadra", "Esha Bhadra", "Mohema Bhuiya", "Shubhrima Talukder", "Saumyadeep Nandi", "Swapnendu Sikdar"], Icon: Music },
     { role: "Logistic", names: ["Souvik Barua Chowdhury", "Prosmit Das", "Rohit Mondal", "Sk Yaser Arafat", "Abhik Chatterjee", "Tanmoy Mahata", "Supratim Das", "Santanu Saha", "Habibul Haque (Logistics+Food)", "Shanku Das", "Shraban Mudi"], Icon: Truck },
-    { role: "Registration & Discipline", names: ["Rajesh Biswas", "Kalpak Majumdar", "Debjit Goswami"], Icon: ShieldCheck },
+    { role: "Registration", names: ["Rajesh Biswas"], Icon: ClipboardList },
+    { role: "Discipline", names: ["Kalpak Majumdar", "Debjit Goswami", "Soumyajit Ghosh (SYG)", "Aritra Majumder"], Icon: ShieldCheck },
   ];
 
   return (
