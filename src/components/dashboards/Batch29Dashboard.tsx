@@ -30,6 +30,20 @@ const StatusBadge = ({ label, status, timestamp }: { label: string, status: bool
   </div>
 );
 
+const getTshirtDisplay = (size: string) => {
+  if (!size) return 'N/A';
+  const s = size.toUpperCase();
+  const sizes: Record<string, string> = {
+    'XS': 'XS (30")',
+    'S': 'S (32")',
+    'M': 'M (36")',
+    'L': 'L (40")',
+    'XL': 'XL (44")',
+    'XXL': 'XXL (48")'
+  };
+  return sizes[s] || s;
+};
+
 export default function Batch29Dashboard({ userData }: { userData: any }) {
   const router = useRouter();
   const [absenceReason, setAbsenceReason] = useState('');
@@ -190,7 +204,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
               </div>
               <div className="flex flex-col space-y-1">
                 <span className="text-gray-400 text-[11px] uppercase tracking-wider font-semibold">T-SHIRT</span>
-                <span className="font-bold text-white text-base uppercase">{userData.tshirt_size || 'N/A'}</span>
+                <span className="font-bold text-white text-base uppercase">{getTshirtDisplay(userData.tshirt_size)}</span>
               </div>
             </div>
           </div>
@@ -298,7 +312,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
               </div>
               <div className="flex flex-col space-y-1">
                 <span className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">T-Shirt Size</span>
-                <span className="text-white text-lg font-medium tracking-wide uppercase">{userData.tshirt_size || 'N/A'}</span>
+                <span className="text-white text-lg font-medium tracking-wide uppercase">{getTshirtDisplay(userData.tshirt_size)}</span>
               </div>
             </div>
           </div>
