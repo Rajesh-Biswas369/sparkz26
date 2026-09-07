@@ -287,10 +287,17 @@ export default function RegisterPage() {
               <div className="relative px-2">
                 <label className="block text-sm text-gray-400 mb-2 pl-4">T-Shirt Size</label>
                 <div className="flex flex-wrap gap-4 pl-4">
-                  {["S", "M", "L", "XL", "XXL"].map((s) => (
-                    <label key={s} className="flex items-center gap-2 cursor-pointer group">
-                      <input type="radio" name="tshirt" value={s} checked={tshirtSize === s} onChange={(e) => setTshirtSize(e.target.value)} className="accent-[#00E5FF] w-4 h-4" required />
-                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{s}</span>
+                  {[
+                    { value: "XS", label: "XS (30\")" },
+                    { value: "S", label: "S (32\")" },
+                    { value: "M", label: "M (36\")" },
+                    { value: "L", label: "L (40\")" },
+                    { value: "XL", label: "XL (44\")" },
+                    { value: "XXL", label: "XXL (48\")" }
+                  ].map((s) => (
+                    <label key={s.value} className="flex items-center gap-2 cursor-pointer group">
+                      <input type="radio" name="tshirt" value={s.value} checked={tshirtSize === s.value} onChange={(e) => setTshirtSize(e.target.value)} className="accent-[#00E5FF] w-4 h-4" required />
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{s.label}</span>
                     </label>
                   ))}
                 </div>

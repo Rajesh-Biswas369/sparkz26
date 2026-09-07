@@ -197,11 +197,12 @@ export default function EditRegistrationModal({ isOpen, onClose, userData }: Edi
                 onChange={handleChange}
                 className="bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-[#00E5FF]/50 transition-colors uppercase"
               >
-                <option value="s">S (36)</option>
-                <option value="m">M (38)</option>
-                <option value="l">L (40)</option>
-                <option value="xl">XL (42)</option>
-                <option value="xxl">XXL (44)</option>
+                <option value="xs">XS (30")</option>
+                <option value="s">S (32")</option>
+                <option value="m">M (36")</option>
+                <option value="l">L (40")</option>
+                <option value="xl">XL (44")</option>
+                <option value="xxl">XXL (48")</option>
               </select>
             </div>
 
