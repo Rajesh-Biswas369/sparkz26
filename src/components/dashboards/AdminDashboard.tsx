@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import { LogOut, Users, Star, QrCode, Wallet } from 'lucide-react';
+import { LogOut, Users, Star, QrCode, Wallet, ClipboardList } from 'lucide-react';
 import QRScanner from './QRScanner';
 import StudentRecords from '../shared/StudentRecords';
 import CulturalParticipations from '../shared/CulturalParticipations';
 import PaymentRequests from '../shared/PaymentRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
+import LogisticsStats from '../shared/LogisticsStats';
 
 interface AdminDashboardProps {
   userData: any;
@@ -21,7 +22,7 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
   const [completedExpensesList, setCompletedExpensesList] = useState<any[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests' | 'logistics'>('students');
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "treasury", "master_ledger"), (docSnapshot) => {
@@ -118,6 +119,13 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
             <span className="truncate">Students</span>
           </button>
           <button
+            onClick={() => setActiveTab('logistics')}
+            className={`w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'logistics' ? 'bg-[#00E5FF]/10 border-l-4 border-[#00E5FF] text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]' : 'text-gray-400 hover:text-[#00E5FF] hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <ClipboardList className="w-5 h-5 shrink-0" />
+            <span className="truncate">Logistics</span>
+          </button>
+          <button
             onClick={() => setActiveTab('participations')}
             className={`w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'participations' ? 'bg-[#00E5FF]/10 border-l-4 border-[#00E5FF] text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]' : 'text-gray-400 hover:text-[#00E5FF] hover:bg-white/5 border-l-4 border-transparent'}`}
           >
@@ -143,6 +151,7 @@ export default function AdminDashboard({ userData }: AdminDashboardProps) {
         {/* Center Column: Dynamic Content Area */}
         <div className="w-full lg:w-8/12 relative z-20 h-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
           {activeTab === 'students' && <StudentRecords />}
+          {activeTab === 'logistics' && <LogisticsStats />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'scanner' && <QRScanner />}
           {activeTab === 'payment_requests' && <PaymentRequests userData={userData} />}
