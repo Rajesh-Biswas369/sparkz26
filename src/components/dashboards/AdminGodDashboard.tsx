@@ -11,7 +11,8 @@ import AdminGodPaymentRequests from '../shared/AdminGodPaymentRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
 import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import AdminGodPermitEdit from '../shared/AdminGodPermitEdit';
-import { Wallet, Edit2 } from 'lucide-react';
+import LogisticsStats from '../shared/LogisticsStats';
+import { Wallet, Edit2, ClipboardList } from 'lucide-react';
 
 interface AdminGodDashboardProps {
   userData?: any;
@@ -27,7 +28,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'logistics'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -195,6 +196,13 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <span className="truncate">Students</span>
           </button>
           <button
+            onClick={() => setActiveTab('logistics')}
+            className={`w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'logistics' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <ClipboardList className="w-5 h-5 shrink-0" />
+            <span className="truncate">Logistics</span>
+          </button>
+          <button
             onClick={() => setActiveTab('participations')}
             className={`w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'participations' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
           >
@@ -237,6 +245,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
         {/* Center Column: Dynamic Content Area */}
         <div className="lg:col-span-8 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
           {activeTab === 'students' && <StudentRecords />}
+          {activeTab === 'logistics' && <LogisticsStats />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'payment_requests' && <AdminGodPaymentRequests />}
           {activeTab === 'absence_requests' && <MasterAbsenceRequests />}

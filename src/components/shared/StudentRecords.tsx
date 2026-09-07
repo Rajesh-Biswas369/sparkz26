@@ -7,6 +7,20 @@ import { Users, Download, Search, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const getTshirtDisplay = (size: string) => {
+  if (!size) return 'N/A';
+  const s = size.toUpperCase();
+  const sizes: Record<string, string> = {
+    'XS': 'XS (30")',
+    'S': 'S (32")',
+    'M': 'M (36")',
+    'L': 'L (40")',
+    'XL': 'XL (44")',
+    'XXL': 'XXL (48")'
+  };
+  return sizes[s] || s;
+};
+
 export default function StudentRecords() {
   const [students, setStudents] = useState<any[]>([]);
   const [activeStatus, setActiveStatus] = useState<'Registered' | 'Appeared'>('Registered');
@@ -236,7 +250,7 @@ export default function StudentRecords() {
                   </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{student.contact_number || 'N/A'}</td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300 max-w-[200px] truncate" title={student.email}>{student.email || 'N/A'}</td>
-                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">{student.tshirt_size || 'N/A'}</td>
+                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">{getTshirtDisplay(student.tshirt_size)}</td>
                   <td className="p-4">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {student.is_absent ? (
