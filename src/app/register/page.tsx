@@ -294,6 +294,15 @@ export default function RegisterPage() {
                     </label>
                   ))}
                 </div>
+
+                <div className="mt-6 mb-2 pl-4 pr-4">
+                  <img 
+                    src="/T-shirt-size.jpg" 
+                    alt="T-Shirt Size Chart" 
+                    className="w-full max-w-md rounded-lg border border-white/10 shadow-lg object-contain"
+                  />
+                </div>
+
                 <p className="text-sm text-[#E07020] mt-4 pl-4">
                   Disclaimer: T-Shirts will not be provided to those who won't be attending the freshers without any genuine reasons.
                 </p>
