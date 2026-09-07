@@ -127,7 +127,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 mb-16 relative h-auto">
         
         {/* Left Column: Vertical Navigation Panel */}
-        <div className="w-full lg:w-2/12 relative h-auto flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div className="w-full lg:w-2/12 relative h-fit flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] lg:sticky lg:top-24">
           <h3 className="font-['Orbitron',sans-serif] text-xs text-gray-400 uppercase tracking-widest mb-2 px-2">Menu</h3>
           <button
             onClick={() => setActiveTab('students')}
@@ -179,7 +179,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
         </div>
 
         {/* Right Column: Mini Analytics / Action Panel */}
-        <div className="w-full lg:w-2/12 relative z-0 h-auto bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_15px_rgba(224,112,32,0.15)]">
+        <div className="w-full lg:w-2/12 relative z-0 h-fit bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_15px_rgba(224,112,32,0.15)] lg:sticky lg:top-24">
           <h2 className="font-['Orbitron',sans-serif] text-sm text-white tracking-widest uppercase mb-4 flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-[#E07020] shadow-[0_0_8px_#E07020] rotate-45"></div>
             <span>Treasury Status</span>

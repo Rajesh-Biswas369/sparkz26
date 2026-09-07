@@ -182,7 +182,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
         
         {/* Left Column: Vertical Navigation Panel */}
-        <div className="lg:col-span-2 h-fit flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div className="lg:col-span-2 h-fit flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] lg:sticky lg:top-24">
           <h3 className="font-['Orbitron',sans-serif] text-xs text-gray-400 uppercase tracking-widest mb-2 px-2">God Menu</h3>
           <button
             onClick={() => setActiveTab('students')}
@@ -265,7 +265,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
         </div>
 
         {/* Right Column: Treasury Command */}
-        <div className="lg:col-span-2 h-fit bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_20px_rgba(224,112,32,0.15)] relative overflow-hidden">
+        <div className="lg:col-span-2 h-fit bg-black/40 backdrop-blur-md border border-[#E07020]/30 rounded-xl p-5 shadow-[0_0_20px_rgba(224,112,32,0.15)] relative overflow-hidden lg:sticky lg:top-24">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#E07020]/10 rounded-full blur-[50px] pointer-events-none"></div>
           
           <h2 className="font-['Orbitron',sans-serif] text-sm text-[#E07020] tracking-widest uppercase mb-6 flex items-center space-x-2 relative z-10">
