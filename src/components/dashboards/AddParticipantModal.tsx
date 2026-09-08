@@ -83,23 +83,36 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
   const handleFetch = async () => {
     if (!identifiers) return;
     setFetchMessage('Fetching...');
+    const ids = identifiers.split(',').map(id => id.trim()).filter(id => id);
     try {
-      let q = query(collection(db, "users"), where("roll_number", "==", identifiers.trim()));
-      let snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        q = query(collection(db, "users"), where("email", "==", identifiers.trim()));
-        snapshot = await getDocs(q);
+      const users = [];
+      for (const id of ids) {
+        let q = query(collection(db, "users"), where("roll_number", "==", id));
+        let snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+          q = query(collection(db, "users"), where("email", "==", id));
+          snapshot = await getDocs(q);
+        }
+
+        if (!snapshot.empty) {
+          users.push(snapshot.docs[0].data());
+        }
       }
 
-      if (!snapshot.empty) {
-        const userData = snapshot.docs[0].data();
-        setFetchedName(userData.name || '');
-        setFetchedContact(userData.contact_number || userData.phone || '');
-        setFetchedSection(userData.section || '');
-        setFetchMessage('Details fetched successfully!');
+      if (users.length > 0) {
+        setFetchedName(users.map(u => u.name).join(', '));
+        setFetchedContact(users.map(u => u.contact_number || u.phone).join(', '));
+        setFetchedSection(users.map(u => u.section).join(', '));
+        setFetchMessage(`Successfully fetched ${users.length} user(s)!`);
+        // We'll store fetched users in a ref or just rely on state. 
+        // Actually, we can just fetch again on submit or parse the joined strings.
+        // To keep it simple, we'll parse on submit or store users in a new state.
       } else {
-        setFetchMessage('No user found.');
+        setFetchedName('');
+        setFetchedContact('');
+        setFetchedSection('');
+        setFetchMessage('No users found.');
       }
     } catch (error) {
       console.error(error);
@@ -117,11 +130,52 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
     const totalDurationInSeconds = (min * 60) + sec;
     const formattedDuration = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 
+    let pNames: string[] = [];
+    let pRolls: string[] = [];
+    let pContacts: string[] = [];
+    let pSections: string[] = [];
+    let legacyName = '';
+    let legacyRoll = '';
+    let legacyContact = '';
+    let legacyClassAndSec = '';
+
+    if (participantCategory === 'Junior') {
+      const ids = identifiers.split(',').map(id => id.trim()).filter(id => id);
+      pRolls = ids;
+      
+      // Try to construct arrays from the fetched comma-separated strings.
+      // If fetched strings are available, they will align with ids if fetched properly.
+      // A better way is to do a quick fetch here if fetchedName is empty, but assuming they clicked fetch:
+      pNames = fetchedName ? fetchedName.split(',').map(s => s.trim()) : ids;
+      pContacts = fetchedContact ? fetchedContact.split(',').map(s => s.trim()) : [];
+      pSections = fetchedSection ? fetchedSection.split(',').map(s => s.trim()) : [];
+      
+      legacyName = fetchedName || identifiers;
+      legacyRoll = identifiers;
+      legacyContact = fetchedContact;
+      legacyClassAndSec = fetchedSection ? `B.E. 3rd Yr - ${fetchedSection}` : '';
+    } else {
+      pNames = manualNames.split(',').map(s => s.trim()).filter(Boolean);
+      pContacts = manualContact.split(',').map(s => s.trim()).filter(Boolean);
+      pSections = manualSection.split(',').map(s => s.trim()).filter(Boolean);
+      
+      legacyName = manualNames;
+      legacyRoll = '';
+      legacyContact = manualContact;
+      legacyClassAndSec = manualClass ? `${manualClass} - ${manualSection}` : manualSection;
+    }
+
     const payload = {
-      participantName: participantCategory === 'Junior' ? (fetchedName || identifiers) : manualNames,
-      rollNumber: participantCategory === 'Junior' ? identifiers : '',
-      contact: participantCategory === 'Junior' ? fetchedContact : manualContact,
-      classAndSection: participantCategory === 'Junior' ? `B.E. 3rd Yr - ${fetchedSection}` : (manualClass ? `${manualClass} - ${manualSection}` : manualSection),
+      participantNames: pNames,
+      participantRolls: pRolls,
+      participantContacts: pContacts,
+      participantSections: pSections,
+      
+      participantName: legacyName,
+      rollNumber: legacyRoll,
+      contact: legacyContact,
+      classAndSection: legacyClassAndSec,
+      
       eventCategory: eventCategory,
       performanceType: performanceType,
       participantType: participantCategory,

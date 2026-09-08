@@ -94,19 +94,36 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
     const formattedDuration = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 
     const currentUserEmail = auth?.currentUser?.email || 'unknown';
-    const currentUserName = auth?.currentUser?.displayName || 'Unknown';
 
-    // Build arrays and remove duplicates
-    const pIds = Array.from(new Set([currentUserEmail, ...fetchedUsers.map(u => u.email)].filter(Boolean)));
-    const pNames = Array.from(new Set([currentUserName, ...fetchedUsers.map(u => u.name)].filter(Boolean)));
-    const pRolls = Array.from(new Set([...fetchedUsers.map(u => u.roll_number)].filter(Boolean)));
-    const pContacts = Array.from(new Set([...fetchedUsers.map(u => u.contact_number || u.phone)].filter(Boolean)));
-    const pSections = Array.from(new Set([...fetchedUsers.map(u => u.section)].filter(Boolean)));
+    // Build arrays and remove duplicates using only fetched users to prevent admin pollution
+    const idsList = identifiers.split(',').map(s => s.trim()).filter(Boolean);
+    
+    let pIds: string[] = [];
+    let pNames: string[] = [];
+    let pRolls: string[] = [];
+    let pContacts: string[] = [];
+    let pSections: string[] = [];
+    
+    if (fetchedUsers.length > 0) {
+      pIds = Array.from(new Set([...fetchedUsers.map(u => u.email)].filter(Boolean)));
+      pNames = Array.from(new Set([...fetchedUsers.map(u => u.name)].filter(Boolean)));
+      pRolls = Array.from(new Set([...fetchedUsers.map(u => u.roll_number)].filter(Boolean)));
+      pContacts = Array.from(new Set([...fetchedUsers.map(u => u.contact_number || u.phone)].filter(Boolean)));
+      pSections = Array.from(new Set([...fetchedUsers.map(u => u.section)].filter(Boolean)));
+    } else {
+      // Fallback if they didn't fetch
+      pRolls = idsList;
+      pNames = editData?.participantNames || idsList;
+      pContacts = editData?.participantContacts || [];
+      pSections = editData?.participantSections || [];
+    }
 
     const payload = {
       participantIds: pIds,
       participantNames: pNames,
       participantRolls: pRolls,
+      participantContacts: pContacts,
+      participantSections: pSections,
       
       // Keep legacy fields for backward compatibility or simple views
       participantName: pNames.join(', ') || (editData ? editData.participantName : identifiers),
@@ -163,7 +180,7 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
           {/* Performance Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Event Category</label>
+              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Event Category *</label>
               <input 
                 type="text" 
                 value={eventCategory}
@@ -173,7 +190,7 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
             </div>
             
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Performance Type</label>
+              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Performance Type *</label>
               <select 
                 value={performanceType}
                 onChange={(e) => setPerformanceType(e.target.value)}
@@ -191,7 +208,7 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
             <h3 className="font-['Orbitron',sans-serif] text-sm text-[#00E5FF] uppercase tracking-wider">Team Details</h3>
             
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Emails or Roll Numbers (Comma separated)</label>
+              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Emails or Roll Numbers (Comma separated) *</label>
               <div className="relative w-full">
                 <input 
                   type="text" 
@@ -230,7 +247,7 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
               </div>
               
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Duration (MM:SS)</label>
+                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Duration (MM:SS) *</label>
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 

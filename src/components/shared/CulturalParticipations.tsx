@@ -192,8 +192,16 @@ export default function CulturalParticipations() {
                     {p.participantNames ? p.participantNames.join(', ') : p.participantName || 'N/A'}
                   </td>
                   <td className="p-4 font-['Inter',sans-serif] text-[#00E5FF]">{p.participantRolls ? p.participantRolls.join(', ') : p.rollNumber || 'N/A'}</td>
-                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">{p.classAndSection || 'N/A'}</td>
-                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">{p.contact || 'N/A'}</td>
+                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">
+                    <div className="max-w-[150px] truncate" title={p.participantSections && p.participantSections.length > 0 ? p.participantSections.join(', ') : p.classAndSection || 'N/A'}>
+                      {p.participantSections && p.participantSections.length > 0 ? p.participantSections.join(', ') : p.classAndSection || 'N/A'}
+                    </div>
+                  </td>
+                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">
+                    <div className="max-w-[150px] truncate" title={p.participantContacts && p.participantContacts.length > 0 ? p.participantContacts.join(', ') : p.contact || 'N/A'}>
+                      {p.participantContacts && p.participantContacts.length > 0 ? p.participantContacts.join(', ') : p.contact || 'N/A'}
+                    </div>
+                  </td>
                   <td className="p-4 border-b border-white/5">
                     <div className="flex flex-col gap-1 items-start">
                       <span className="bg-white/10 border border-white/20 text-white text-[10px] px-2 py-1 rounded font-['Orbitron',sans-serif]">
