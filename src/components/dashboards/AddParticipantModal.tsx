@@ -258,7 +258,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
                 <option value="Singing">Singing</option>
                 <option value="Instrumental">Instrumental</option>
                 <option value="Drama / Theatre / Skit">Drama / Theatre / Skit</option>
-                <option value="Recitation">Recitation</option>
+                <option value="Poetry & Musical Recitation">Poetry & Musical Recitation</option>
               </select>
             </div>
             
