@@ -129,7 +129,7 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
       participantName: pNames.join(', ') || (editData ? editData.participantName : identifiers),
       rollNumber: pRolls.join(', ') || identifiers,
       contact: pContacts.join(', ') || (editData ? editData.contact : ''),
-      classAndSection: pSections.length > 0 ? `B.E. 3rd Yr - ${pSections.join(', ')}` : (editData ? editData.classAndSection : ''),
+      classAndSection: pSections.length > 0 ? `B.E. 2nd Yr - ${pSections.join(', ')}` : (editData ? editData.classAndSection : ''),
       
       eventCategory: eventCategory,
       performanceType: performanceType,

@@ -153,7 +153,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
       legacyName = fetchedName || identifiers;
       legacyRoll = identifiers;
       legacyContact = fetchedContact;
-      legacyClassAndSec = fetchedSection ? `B.E. 3rd Yr - ${fetchedSection}` : '';
+      legacyClassAndSec = fetchedSection ? `B.E. 2nd Yr - ${fetchedSection}` : '';
     } else {
       pNames = manualNames.split(',').map(s => s.trim()).filter(Boolean);
       pContacts = manualContact.split(',').map(s => s.trim()).filter(Boolean);
