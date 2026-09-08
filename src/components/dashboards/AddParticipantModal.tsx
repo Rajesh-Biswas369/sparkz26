@@ -143,17 +143,39 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
       const ids = identifiers.split(',').map(id => id.trim()).filter(id => id);
       pRolls = ids;
       
-      // Try to construct arrays from the fetched comma-separated strings.
-      // If fetched strings are available, they will align with ids if fetched properly.
-      // A better way is to do a quick fetch here if fetchedName is empty, but assuming they clicked fetch:
-      pNames = fetchedName ? fetchedName.split(',').map(s => s.trim()) : ids;
-      pContacts = fetchedContact ? fetchedContact.split(',').map(s => s.trim()) : [];
-      pSections = fetchedSection ? fetchedSection.split(',').map(s => s.trim()) : [];
+      const users = [];
+      for (const id of ids) {
+        let q = query(collection(db, "users"), where("roll_number", "==", id));
+        let snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+          q = query(collection(db, "users"), where("email", "==", id));
+          snapshot = await getDocs(q);
+        }
+
+        if (!snapshot.empty) {
+          users.push(snapshot.docs[0].data());
+        }
+      }
+
+      let fetchedN = fetchedName;
+      let fetchedC = fetchedContact;
+      let fetchedS = fetchedSection;
+
+      if (users.length > 0) {
+        fetchedN = users.map(u => u.name).filter(Boolean).join(', ');
+        fetchedC = users.map(u => u.contact_number || u.phone).filter(Boolean).join(', ');
+        fetchedS = users.map(u => u.section).filter(Boolean).join(', ');
+      }
+
+      pNames = fetchedN ? fetchedN.split(',').map(s => s.trim()) : ids;
+      pContacts = fetchedC ? fetchedC.split(',').map(s => s.trim()) : [];
+      pSections = fetchedS ? fetchedS.split(',').map(s => s.trim()) : [];
       
-      legacyName = fetchedName || identifiers;
+      legacyName = fetchedN || identifiers;
       legacyRoll = identifiers;
-      legacyContact = fetchedContact;
-      legacyClassAndSec = fetchedSection ? `B.E. 2nd Yr - ${fetchedSection}` : '';
+      legacyContact = fetchedC;
+      legacyClassAndSec = fetchedS ? `B.E. 2nd Yr - ${fetchedS}` : '';
     } else {
       pNames = manualNames.split(',').map(s => s.trim()).filter(Boolean);
       pContacts = manualContact.split(',').map(s => s.trim()).filter(Boolean);

@@ -104,12 +104,27 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
     let pContacts: string[] = [];
     let pSections: string[] = [];
     
-    if (fetchedUsers.length > 0) {
-      pIds = Array.from(new Set([...fetchedUsers.map(u => u.email)].filter(Boolean)));
-      pNames = Array.from(new Set([...fetchedUsers.map(u => u.name)].filter(Boolean)));
-      pRolls = Array.from(new Set([...fetchedUsers.map(u => u.roll_number)].filter(Boolean)));
-      pContacts = Array.from(new Set([...fetchedUsers.map(u => u.contact_number || u.phone)].filter(Boolean)));
-      pSections = Array.from(new Set([...fetchedUsers.map(u => u.section)].filter(Boolean)));
+    const users = [];
+    for (const id of idsList) {
+      let q = query(collection(db, "users"), where("roll_number", "==", id));
+      let snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        q = query(collection(db, "users"), where("email", "==", id));
+        snapshot = await getDocs(q);
+      }
+
+      if (!snapshot.empty) {
+        users.push(snapshot.docs[0].data());
+      }
+    }
+
+    if (users.length > 0) {
+      pIds = Array.from(new Set([...users.map(u => u.email)].filter(Boolean)));
+      pNames = Array.from(new Set([...users.map(u => u.name)].filter(Boolean)));
+      pRolls = Array.from(new Set([...users.map(u => u.roll_number)].filter(Boolean)));
+      pContacts = Array.from(new Set([...users.map(u => u.contact_number || u.phone)].filter(Boolean)));
+      pSections = Array.from(new Set([...users.map(u => u.section)].filter(Boolean)));
     } else {
       // Fallback if they didn't fetch
       pRolls = idsList;
