@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, setDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Orbitron } from "next/font/google";
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   // Form State
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [allowRegistration, setAllowRegistration] = useState<boolean | null>(null);
 
   // Data State
   const [name, setName] = useState("");
@@ -39,7 +40,20 @@ export default function RegisterPage() {
         router.push("/login");
       }
     });
-    return () => unsubscribe();
+
+    const unsubControls = onSnapshot(doc(db, "settings", "scanner_controls"), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setAllowRegistration(!!data.allow_registration);
+      } else {
+        setAllowRegistration(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubControls();
+    };
   }, [router]);
 
   const isValidRollNumber = (roll: string): boolean => {
@@ -58,6 +72,11 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (allowRegistration === false) {
+      setError("Registration is currently closed.");
+      return;
+    }
+    
     if (!rollNumber || !section || !name || !email || !contactNumber || !gender || !foodPreference || !tshirtSize) {
       setError("Please fill out all required fields.");
       return;
@@ -149,21 +168,32 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-lg pb-12 mt-8">
         {/* Glassmorphism Container */}
         <div className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl relative">
-          <motion.form
-            variants={formVariants}
-            initial="hidden"
-            animate="visible"
-            onSubmit={handleSubmit}
-            className="space-y-6"
-            autoComplete="off"
-          >
-            <div className="text-center mb-8">
-              <h1 className={`${orbitron.className} text-3xl md:text-4xl font-bold text-center mb-2 tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-[#00E5FF] drop-shadow-[0_0_15px_rgba(0,229,255,0.8)] uppercase`}>
-                COMPLETE REGISTRATION
-              </h1>
-            </div>
+          
+          <div className="text-center mb-8">
+            <h1 className={`${orbitron.className} text-3xl md:text-4xl font-bold text-center mb-2 tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-[#00E5FF] drop-shadow-[0_0_15px_rgba(0,229,255,0.8)] uppercase`}>
+              COMPLETE REGISTRATION
+            </h1>
+          </div>
 
-            {error && <p className="text-red-400 text-sm text-center bg-red-900/20 border border-red-500/30 py-2 rounded">{error}</p>}
+          {allowRegistration === false ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <h2 className="text-red-500 font-bold text-2xl tracking-widest uppercase mb-4 text-center">
+                Registration is closed
+              </h2>
+              <p className="text-gray-400 text-center font-['Inter',sans-serif]">
+                New registrations are currently not permitted. Please contact the administration if you believe this is an error.
+              </p>
+            </div>
+          ) : (
+            <motion.form
+              variants={formVariants}
+              initial="hidden"
+              animate="visible"
+              onSubmit={handleSubmit}
+              className="space-y-6"
+              autoComplete="off"
+            >
+              {error && <p className="text-red-400 text-sm text-center bg-red-900/20 border border-red-500/30 py-2 rounded">{error}</p>}
 
             <div className="space-y-4 font-['Inter',sans-serif]">
               {/* Name */}
@@ -326,6 +356,7 @@ export default function RegisterPage() {
               {loading ? "SAVING..." : "SUBMIT"}
             </button>
           </motion.form>
+          )}
         </div>
       </div>
     </div>

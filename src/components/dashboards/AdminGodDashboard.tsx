@@ -11,8 +11,9 @@ import AdminGodPaymentRequests from '../shared/AdminGodPaymentRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
 import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import AdminGodPermitEdit from '../shared/AdminGodPermitEdit';
+import AdminGodRegistrationPermit from '../shared/AdminGodRegistrationPermit';
 import LogisticsStats from '../shared/LogisticsStats';
-import { Wallet, Edit2, ClipboardList } from 'lucide-react';
+import { Wallet, Edit2, ClipboardList, UserPlus } from 'lucide-react';
 
 interface AdminGodDashboardProps {
   userData?: any;
@@ -28,7 +29,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'logistics'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'registration_permit' | 'logistics'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -37,7 +38,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
     allow_tshirt: false,
     allow_breakfast: false,
     allow_lunch: false,
-    allow_registration_edit: false
+    allow_registration_edit: false,
+    allow_registration: false
   });
 
   useEffect(() => {
@@ -59,7 +61,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
           allow_tshirt: !!data.allow_tshirt,
           allow_breakfast: !!data.allow_breakfast,
           allow_lunch: !!data.allow_lunch,
-          allow_registration_edit: !!data.allow_registration_edit
+          allow_registration_edit: !!data.allow_registration_edit,
+          allow_registration: !!data.allow_registration
         });
       }
     });
@@ -240,6 +243,13 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <Edit2 className="w-5 h-5 shrink-0" />
             <span className="truncate">Permit Edit</span>
           </button>
+          <button
+            onClick={() => setActiveTab('registration_permit')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'registration_permit' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <UserPlus className="w-5 h-5 shrink-0" />
+            <span className="truncate">Registration Permit</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -255,6 +265,12 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               onToggle={() => toggleControl('allow_registration_edit')}
             />
           )}
+          {activeTab === 'registration_permit' && (
+            <AdminGodRegistrationPermit 
+              allowRegistration={scannerControls.allow_registration} 
+              onToggle={() => toggleControl('allow_registration')}
+            />
+          )}
           
           {activeTab === 'settings' && (
             <div className="flex flex-col h-full">
@@ -265,7 +281,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Object.entries(scannerControls)
-                  .filter(([key]) => key !== 'allow_registration_edit')
+                  .filter(([key]) => key !== 'allow_registration_edit' && key !== 'allow_registration')
                   .map(([key, value]) => {
                   const label = key.replace("allow_", "").toUpperCase();
                   return (

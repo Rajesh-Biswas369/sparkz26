@@ -97,7 +97,7 @@ export default function StudentRecords() {
     doc.text(`Status: ${activeStatus} | Section: ${activeSection}`, 14, 22);
     doc.text(`Total Headcount: ${filteredStudents.length}`, 14, 27);
     
-    const columns = ['Sl No.', 'Name', 'Roll Number', 'Section', 'Contact', 'Email', 'T-Shirt Size'];
+    const columns = ['Sl No.', 'Name', 'Roll Number', 'Section', 'Contact', 'Email', 'Food', 'T-Shirt Size'];
     const rows = filteredStudents.map((s, index) => [
       index + 1,
       s.name || 'N/A',
@@ -105,6 +105,7 @@ export default function StudentRecords() {
       s.section || 'N/A',
       s.contact_number || 'N/A',
       s.email || 'N/A',
+      s.food_preference || 'N/A',
       s.tshirt_size || 'N/A'
     ]);
 
@@ -227,6 +228,7 @@ export default function StudentRecords() {
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Section</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Contact</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Email</th>
+                <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Food</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">T-Shirt</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Status</th>
               </tr>
@@ -250,6 +252,11 @@ export default function StudentRecords() {
                   </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{student.contact_number || 'N/A'}</td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300 max-w-[200px] truncate" title={student.email}>{student.email || 'N/A'}</td>
+                  <td className="p-4 font-['Inter',sans-serif] text-gray-300">
+                    <span className={`text-xs px-2 py-1 rounded font-bold ${student.food_preference?.toLowerCase() === 'veg' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {student.food_preference || 'N/A'}
+                    </span>
+                  </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{getTshirtDisplay(student.tshirt_size)}</td>
                   <td className="p-4">
                     <div className="flex flex-wrap items-center gap-1.5">
