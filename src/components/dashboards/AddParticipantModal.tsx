@@ -248,7 +248,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
           {/* Event & Performance Categories */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Event Category</label>
+              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Event Category *</label>
               <select 
                 value={eventCategory}
                 onChange={(e) => setEventCategory(e.target.value)}
@@ -263,7 +263,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
             </div>
             
             <div className="flex flex-col gap-2">
-              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Performance Type</label>
+              <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Performance Type *</label>
               <select 
                 value={performanceType}
                 onChange={(e) => setPerformanceType(e.target.value)}
@@ -282,7 +282,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
             
             {participantCategory === 'Junior' ? (
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Emails or Roll Numbers (Comma separated)</label>
+                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Emails or Roll Numbers (Comma separated) *</label>
                 <div className="relative w-full">
                   <input 
                     type="text" 
@@ -305,7 +305,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Name(s)</label>
+                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Name(s) *</label>
                   <input 
                     type="text" 
                     value={manualNames}
@@ -315,7 +315,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Contact Number</label>
+                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Contact Number *</label>
                   <input 
                     type="text" 
                     value={manualContact}
@@ -325,7 +325,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Class</label>
+                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Class *</label>
                   <input 
                     type="text" 
                     value={manualClass}
@@ -334,7 +334,7 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Section</label>
+                  <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Section *</label>
                   <input 
                     type="text" 
                     value={manualSection}
@@ -352,18 +352,19 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Song/Track Name</label>
+                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Song/Track Name *</label>
                 <input 
                   type="text" 
                   value={songName}
                   onChange={(e) => setSongName(e.target.value)}
+                  required
                   className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-['Inter',sans-serif] focus:outline-none focus:border-[#00E5FF] transition-colors"
-                  placeholder="Optional"
+                  placeholder="Enter song/track name"
                 />
               </div>
               
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Duration (MM:SS)</label>
+                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Duration (MM:SS) *</label>
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 

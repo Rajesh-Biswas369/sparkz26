@@ -236,13 +236,14 @@ export default function UserParticipationModal({ isOpen, onClose, eventCategory,
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Song/Track Name</label>
+                <label className="text-gray-400 text-xs font-['Inter',sans-serif] uppercase tracking-widest">Song/Track Name *</label>
                 <input 
                   type="text" 
                   value={songName}
                   onChange={(e) => setSongName(e.target.value)}
+                  required
                   className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white font-['Inter',sans-serif] focus:outline-none focus:border-[#00E5FF] transition-colors"
-                  placeholder="Optional"
+                  placeholder="Enter song/track name"
                 />
               </div>
               
