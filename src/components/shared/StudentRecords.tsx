@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Users, Download, Search, X } from 'lucide-react';
+import { Users, Download, Search, X, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+
+interface StudentRecordsProps {
+  isAdminGod?: boolean;
+}
 
 const getTshirtDisplay = (size: string) => {
   if (!size) return 'N/A';
@@ -21,7 +25,7 @@ const getTshirtDisplay = (size: string) => {
   return sizes[s] || s;
 };
 
-export default function StudentRecords() {
+export default function StudentRecords({ isAdminGod = false }: StudentRecordsProps) {
   const [students, setStudents] = useState<any[]>([]);
   const [activeStatus, setActiveStatus] = useState<'Registered' | 'Appeared'>('Registered');
   const [activeSection, setActiveSection] = useState<'Sec A' | 'Sec B'>('Sec A');
@@ -86,6 +90,17 @@ export default function StudentRecords() {
   const breakfastGiven = students.filter(s => s.breakfast_scanned === true).length;
   const lunchGiven = students.filter(s => s.lunch_scanned === true).length;
   const tshirtGiven = students.filter(s => s.tshirt_scanned === true).length;
+
+  const handleDelete = async (studentId: string) => {
+    if (window.confirm("Are you sure you want to delete this student's account? This action cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, "users", studentId));
+      } catch (error) {
+        console.error("Error deleting student:", error);
+        alert("Failed to delete student.");
+      }
+    }
+  };
 
   const exportToPDF = () => {
     const doc = new jsPDF('landscape');
@@ -231,6 +246,9 @@ export default function StudentRecords() {
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Food</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">T-Shirt</th>
                 <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10">Status</th>
+                {isAdminGod && (
+                  <th className="p-4 font-['Orbitron',sans-serif] text-[#00E5FF] border-b border-white/10 text-center">Action</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -290,6 +308,17 @@ export default function StudentRecords() {
                       </span>
                     </div>
                   </td>
+                  {isAdminGod && (
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() => handleDelete(student.id)}
+                        className="text-red-500 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-full transition-colors"
+                        title="Delete Student"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

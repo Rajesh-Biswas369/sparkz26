@@ -254,7 +254,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
 
         {/* Center Column: Dynamic Content Area */}
         <div className="lg:col-span-8 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.5)] min-h-[400px]">
-          {activeTab === 'students' && <StudentRecords />}
+          {activeTab === 'students' && <StudentRecords isAdminGod={true} />}
           {activeTab === 'logistics' && <LogisticsStats />}
           {activeTab === 'participations' && <CulturalParticipations />}
           {activeTab === 'payment_requests' && <AdminGodPaymentRequests />}
