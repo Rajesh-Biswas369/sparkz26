@@ -28,14 +28,15 @@ export default function LogisticsStats() {
 
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
-        if (data.is_absent) return;
         
-        // Food
-        const food = data.food_preference?.toLowerCase();
-        if (food === 'veg') vegCount++;
-        else if (food === 'non-veg') nonVegCount++;
+        // Food - only count if NOT absent
+        if (!data.is_absent) {
+          const food = data.food_preference?.toLowerCase();
+          if (food === 'veg') vegCount++;
+          else if (food === 'non-veg') nonVegCount++;
+        }
 
-        // T-Shirt
+        // T-Shirt - count regardless of absence
         const size = data.tshirt_size?.toUpperCase();
         if (size && (tshirtCounts as any)[size] !== undefined) {
           (tshirtCounts as any)[size]++;

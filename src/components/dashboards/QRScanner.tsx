@@ -225,9 +225,20 @@ export default function QRScanner() {
                 </div>
                 <div className="flex flex-col col-span-2 border-t border-white/10 pt-3 mt-1">
                   <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">Food Preference</span>
-                  <p className={`font-['Orbitron',sans-serif] text-lg font-bold uppercase mt-1 ${scannedStudent.food_preference?.toLowerCase() === 'non-veg' || scannedStudent.food_preference?.toLowerCase() === 'nonveg' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)]' : 'text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]'}`}>
-                    {scannedStudent.food_preference || "Not Specified"}
-                  </p>
+                  {scannedStudent.is_absent ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="font-['Orbitron',sans-serif] text-lg font-bold uppercase text-gray-500 line-through decoration-red-500/50">
+                        {scannedStudent.food_preference || "Not Specified"}
+                      </p>
+                      <span className="text-red-500 font-['Orbitron',sans-serif] text-xs border border-red-500/30 bg-red-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+                        <XCircle size={12} /> CANCELLED
+                      </span>
+                    </div>
+                  ) : (
+                    <p className={`font-['Orbitron',sans-serif] text-lg font-bold uppercase mt-1 ${scannedStudent.food_preference?.toLowerCase() === 'non-veg' || scannedStudent.food_preference?.toLowerCase() === 'nonveg' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)]' : 'text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]'}`}>
+                      {scannedStudent.food_preference || "Not Specified"}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
