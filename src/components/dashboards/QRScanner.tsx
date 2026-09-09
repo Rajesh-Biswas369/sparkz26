@@ -198,19 +198,37 @@ export default function QRScanner() {
             {/* Background decor */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00E5FF]/10 rounded-full blur-[50px]"></div>
 
-            <div className="flex flex-col items-center mb-8 border-b border-white/10 pb-6 text-center z-10">
-              <h3 className="font-['Orbitron',sans-serif] text-2xl font-bold text-white uppercase tracking-widest mb-2">
+            <div className="flex flex-col items-center mb-8 border-b border-white/10 pb-6 text-center z-10 w-full">
+              <h3 className="font-['Orbitron',sans-serif] text-2xl font-bold text-white uppercase tracking-widest mb-2 text-center">
                 {scannedStudent.name || "Unknown Name"}
               </h3>
-              <p className="font-['Orbitron',sans-serif] text-[#00E5FF] text-lg tracking-widest bg-[#00E5FF]/10 px-3 py-1 rounded border border-[#00E5FF]/30">
+              <p className="font-['Orbitron',sans-serif] text-[#00E5FF] text-lg tracking-widest bg-[#00E5FF]/10 px-3 py-1 rounded border border-[#00E5FF]/30 mb-6 inline-block">
                 {scannedStudent.roll_number}
               </p>
               
-              <div className="mt-6">
-                <span className="text-gray-400 text-xs uppercase tracking-widest font-['Inter',sans-serif]">Food Preference</span>
-                <p className={`font-['Orbitron',sans-serif] text-xl font-bold uppercase mt-1 ${scannedStudent.food_preference?.toLowerCase() === 'non-veg' || scannedStudent.food_preference?.toLowerCase() === 'nonveg' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)]' : 'text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]'}`}>
-                  {scannedStudent.food_preference || "Not Specified"}
-                </p>
+              <div className="w-full grid grid-cols-2 gap-4 text-left bg-black/40 p-4 rounded-xl border border-white/10">
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">Section</span>
+                  <span className="text-white font-['Inter',sans-serif] font-medium mt-1">{scannedStudent.section || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">Contact</span>
+                  <span className="text-white font-['Inter',sans-serif] font-medium mt-1">{scannedStudent.contact_number || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">Gender</span>
+                  <span className="text-white font-['Inter',sans-serif] font-medium mt-1 capitalize">{scannedStudent.gender || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">T-Shirt Size</span>
+                  <span className="text-white font-['Inter',sans-serif] font-medium mt-1 uppercase">{scannedStudent.tshirt_size || "N/A"}</span>
+                </div>
+                <div className="flex flex-col col-span-2 border-t border-white/10 pt-3 mt-1">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-widest font-['Inter',sans-serif]">Food Preference</span>
+                  <p className={`font-['Orbitron',sans-serif] text-lg font-bold uppercase mt-1 ${scannedStudent.food_preference?.toLowerCase() === 'non-veg' || scannedStudent.food_preference?.toLowerCase() === 'nonveg' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)]' : 'text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]'}`}>
+                    {scannedStudent.food_preference || "Not Specified"}
+                  </p>
+                </div>
               </div>
             </div>
 
