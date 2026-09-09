@@ -211,7 +211,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
 
           <div className="bg-white p-3 rounded-2xl mb-8 shadow-[0_0_40px_rgba(0,229,255,0.4)]">
             <QRCodeSVG 
-              value={JSON.stringify({ roll_number: userData.roll_number })} 
+              value={JSON.stringify({ roll_number: userData.roll_number, email: userData.email })} 
               size={180}
               level="Q"
               includeMargin={false}
@@ -330,7 +330,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
                 className="bg-white p-4 rounded-xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
               >
                 <QRCodeSVG 
-                  value={JSON.stringify({ roll_number: userData.roll_number })} 
+                  value={JSON.stringify({ roll_number: userData.roll_number, email: userData.email })} 
                   size={200}
                   level="Q"
                   includeMargin={false}
