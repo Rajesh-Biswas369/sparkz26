@@ -77,15 +77,21 @@ export default function QRScanner() {
           
           try {
             const parsedData = JSON.parse(decodedText);
-            if (!parsedData.email) {
-              // Ensure we at least have email for backward compatibility with old formats
+            let searchEmail = parsedData?.email;
+            let searchRoll = parsedData?.roll_number;
+
+            if (!searchEmail && !searchRoll) {
               setError("Invalid QR Format");
               return;
             }
 
             const usersRef = collection(db, "users");
-            // Only query by email so that if a student edits their roll_number, their old QR code still works
-            const q = query(usersRef, where("email", "==", parsedData.email));
+            let q;
+            if (searchEmail) {
+              q = query(usersRef, where("email", "==", searchEmail));
+            } else {
+              q = query(usersRef, where("roll_number", "==", searchRoll));
+            }
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
