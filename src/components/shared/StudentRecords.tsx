@@ -271,9 +271,15 @@ export default function StudentRecords({ isAdminGod = false }: StudentRecordsPro
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{student.contact_number || 'N/A'}</td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300 max-w-[200px] truncate" title={student.email}>{student.email || 'N/A'}</td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">
-                    <span className={`text-xs px-2 py-1 rounded font-bold ${student.food_preference?.toLowerCase() === 'veg' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {student.food_preference || 'N/A'}
-                    </span>
+                    {student.is_absent ? (
+                      <span className="flex items-center w-fit gap-1 text-xs px-2 py-1 rounded font-bold bg-red-500/10 border border-red-500/30 text-red-400 line-through decoration-red-500/50">
+                        {student.food_preference || 'N/A'} <X size={12} className="text-red-400 no-underline" />
+                      </span>
+                    ) : (
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${student.food_preference?.toLowerCase() === 'veg' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {student.food_preference || 'N/A'}
+                      </span>
+                    )}
                   </td>
                   <td className="p-4 font-['Inter',sans-serif] text-gray-300">{getTshirtDisplay(student.tshirt_size)}</td>
                   <td className="p-4">

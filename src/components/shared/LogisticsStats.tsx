@@ -28,6 +28,7 @@ export default function LogisticsStats() {
 
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
+        if (data.is_absent) return;
         
         // Food
         const food = data.food_preference?.toLowerCase();
