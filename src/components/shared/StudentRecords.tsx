@@ -85,11 +85,11 @@ export default function StudentRecords({ isAdminGod = false }: StudentRecordsPro
   const totalRegistered = students.length;
   const secAReg = students.filter(s => s.section?.toUpperCase().startsWith('A')).length;
   const secBReg = students.filter(s => s.section?.toUpperCase().startsWith('B')).length;
-  const appearedLive = students.filter(s => s.entry_scanned === true && !s.is_absent).length;
+  const appearedLive = students.filter(s => s.entry_scanned === true).length;
   
-  const breakfastGiven = students.filter(s => s.breakfast_scanned === true && !s.is_absent).length;
-  const lunchGiven = students.filter(s => s.lunch_scanned === true && !s.is_absent).length;
-  const tshirtGiven = students.filter(s => s.tshirt_scanned === true && !s.is_absent).length;
+  const breakfastGiven = students.filter(s => s.breakfast_scanned === true).length;
+  const lunchGiven = students.filter(s => s.lunch_scanned === true).length;
+  const tshirtGiven = students.filter(s => s.tshirt_scanned === true).length;
 
   const handleDelete = async (studentId: string) => {
     if (window.confirm("Are you sure you want to delete this student's account? This action cannot be undone.")) {
@@ -289,9 +289,6 @@ export default function StudentRecords({ isAdminGod = false }: StudentRecordsPro
                           <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
                             LUNCH <X size={10} className="text-red-400" />
                           </span>
-                          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
-                            TSHIRT <X size={10} className="text-red-400" />
-                          </span>
                         </>
                       ) : (
                         <>
@@ -304,11 +301,11 @@ export default function StudentRecords({ isAdminGod = false }: StudentRecordsPro
                           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.lunch_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
                             LUNCH
                           </span>
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.tshirt_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
-                            TSHIRT
-                          </span>
                         </>
                       )}
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.tshirt_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
+                        TSHIRT
+                      </span>
                     </div>
                   </td>
                   {isAdminGod && (
