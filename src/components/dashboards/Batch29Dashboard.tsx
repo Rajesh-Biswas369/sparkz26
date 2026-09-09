@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
-import { User, LogOut, CheckCircle2, XCircle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2 } from 'lucide-react';
+import { User, LogOut, CheckCircle2, XCircle, Circle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2 } from 'lucide-react';
 import { collection, query, where, getDocs, updateDoc, onSnapshot } from 'firebase/firestore';
 
 import { toPng } from 'html-to-image';
@@ -14,21 +14,36 @@ import UserParticipationModal from '@/components/events/UserParticipationModal';
 import EditRegistrationModal from '@/components/shared/EditRegistrationModal';
 import { doc } from 'firebase/firestore';
 
-const StatusBadge = ({ label, status, timestamp }: { label: string, status: boolean | undefined, timestamp?: string }) => (
-  <div className={`flex flex-col p-3 rounded-lg border ${status ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-    <div className="flex items-center justify-between w-full">
-      <span className="text-white/80 text-sm font-['Inter',sans-serif]">{label}</span>
-      {status ? (
-        <CheckCircle2 size={18} className="text-green-400" />
-      ) : (
-        <XCircle size={18} className="text-red-400" />
+const StatusBadge = ({ label, status, timestamp, isCancelled = false }: { label: string, status: boolean | undefined, timestamp?: string, isCancelled?: boolean }) => {
+  let badgeStyle = 'bg-white/5 border-white/10';
+  let Icon = Circle;
+  let iconColor = 'text-white/40';
+
+  if (isCancelled) {
+    badgeStyle = 'bg-red-500/10 border-red-500/30';
+    Icon = XCircle;
+    iconColor = 'text-red-400';
+  } else if (status) {
+    badgeStyle = 'bg-green-500/10 border-green-500/30';
+    Icon = CheckCircle2;
+    iconColor = 'text-green-400';
+  }
+
+  return (
+    <div className={`flex flex-col p-3 rounded-lg border ${badgeStyle}`}>
+      <div className="flex items-center justify-between w-full">
+        <span className="text-white/80 text-sm font-['Inter',sans-serif]">{label}</span>
+        <Icon size={18} className={iconColor} />
+      </div>
+      {status && timestamp && !isCancelled && (
+        <span className="text-xs text-gray-400 italic mt-1">{timestamp}</span>
+      )}
+      {isCancelled && (
+        <span className="text-xs text-red-400/80 italic mt-1 font-bold">CANCELLED</span>
       )}
     </div>
-    {status && timestamp && (
-      <span className="text-xs text-gray-400 italic mt-1">{timestamp}</span>
-    )}
-  </div>
-);
+  );
+};
 
 const getTshirtDisplay = (size: string) => {
   if (!size) return 'N/A';
@@ -348,10 +363,10 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
             </div>
 
             <div className="w-full grid grid-cols-2 gap-4">
-              <StatusBadge label="Entry" status={userData.entry_scanned} timestamp={userData.entry_scanned_time} />
+              <StatusBadge label="Entry" status={userData.entry_scanned} timestamp={userData.entry_scanned_time} isCancelled={userData.is_absent} />
               <StatusBadge label="T-Shirt" status={userData.tshirt_scanned} timestamp={userData.tshirt_scanned_time} />
-              <StatusBadge label="Breakfast" status={userData.breakfast_scanned} timestamp={userData.breakfast_scanned_time} />
-              <StatusBadge label="Lunch" status={userData.lunch_scanned} timestamp={userData.lunch_scanned_time} />
+              <StatusBadge label="Breakfast" status={userData.breakfast_scanned} timestamp={userData.breakfast_scanned_time} isCancelled={userData.is_absent} />
+              <StatusBadge label="Lunch" status={userData.lunch_scanned} timestamp={userData.lunch_scanned_time} isCancelled={userData.is_absent} />
             </div>
           </div>
         </div>

@@ -77,13 +77,15 @@ export default function QRScanner() {
           
           try {
             const parsedData = JSON.parse(decodedText);
-            if (!parsedData.roll_number || !parsedData.email) {
-              setError("Data Not Found !");
+            if (!parsedData.email) {
+              // Ensure we at least have email for backward compatibility with old formats
+              setError("Invalid QR Format");
               return;
             }
 
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("roll_number", "==", parsedData.roll_number), where("email", "==", parsedData.email));
+            // Only query by email so that if a student edits their roll_number, their old QR code still works
+            const q = query(usersRef, where("email", "==", parsedData.email));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
@@ -265,6 +267,21 @@ function ActionButton({ label, fieldBase, scannedStudent, updating, onAction, is
   const isDone = scannedStudent[`${fieldBase}_scanned`];
   const isUpdating = updating === fieldBase;
   const timeStr = scannedStudent[`${fieldBase}_scanned_time`];
+  const isAbsent = scannedStudent.is_absent === true;
+
+  if (isAbsent && fieldBase !== 'tshirt') {
+    return (
+      <button 
+        disabled
+        className="flex flex-col items-center justify-center py-3 px-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 font-['Orbitron',sans-serif] uppercase tracking-wider opacity-70 cursor-not-allowed"
+      >
+        <div className="flex items-center space-x-2">
+          <XCircle size={16} />
+          <span>{label} Cancelled</span>
+        </div>
+      </button>
+    );
+  }
 
   if (isDone) {
     return (
