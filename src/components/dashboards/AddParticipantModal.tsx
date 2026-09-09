@@ -158,15 +158,15 @@ export default function AddParticipantModal({ isOpen, onClose, editData }: AddPa
         }
       }
 
-      let fetchedN = fetchedName;
-      let fetchedC = fetchedContact;
-      let fetchedS = fetchedSection;
-
-      if (users.length > 0) {
-        fetchedN = users.map(u => u.name).filter(Boolean).join(', ');
-        fetchedC = users.map(u => u.contact_number || u.phone).filter(Boolean).join(', ');
-        fetchedS = users.map(u => u.section).filter(Boolean).join(', ');
+      if (users.length === 0 || users.length !== ids.length) {
+        alert("Error: One or more provided Roll Numbers or Emails do not exist in the registered students database. Junior participants must be valid registered students.");
+        setLoading(false);
+        return;
       }
+
+      let fetchedN = users.map(u => u.name).filter(Boolean).join(', ');
+      let fetchedC = users.map(u => u.contact_number || u.phone).filter(Boolean).join(', ');
+      let fetchedS = users.map(u => u.section).filter(Boolean).join(', ');
 
       pNames = fetchedN ? fetchedN.split(',').map(s => s.trim()) : ids;
       pContacts = fetchedC ? fetchedC.split(',').map(s => s.trim()) : [];
