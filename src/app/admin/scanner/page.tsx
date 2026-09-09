@@ -68,32 +68,44 @@ export default function ScannerPage() {
   }, [role, scannedData]);
 
   const onScanSuccess = async (decodedText: string) => {
-    // Stop scanner to prevent multiple scans
     if (scannerRef.current) {
       scannerRef.current.clear().catch(console.error);
     }
-    fetchUserData(decodedText);
+    
+    try {
+      const parsedData = JSON.parse(decodedText);
+      if (!parsedData.roll_number || !parsedData.email) {
+        setError("Data Not Found !");
+        return;
+      }
+      fetchUserData(parsedData);
+    } catch (err) {
+      console.error("Parse error", err);
+      setError("Data Not Found !");
+    }
   };
 
   const onScanFailure = (error: any) => {
-    // Usually ignoring normal frame errors, but can log if needed
+    // Usually ignoring normal frame errors
   };
 
-  const fetchUserData = async (rollNumber: string) => {
+  const fetchUserData = async (parsedData: { roll_number: string, email: string }) => {
     setLoading(true);
     setError("");
     try {
-      const docRef = doc(db, "users", rollNumber);
-      const docSnap = await getDoc(docRef);
+      // Query users by both roll_number and email to ensure it's the latest valid token
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("roll_number", "==", parsedData.roll_number), where("email", "==", parsedData.email));
+      const querySnapshot = await getDocs(q);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data() as ScannedUser;
-        setScannedData(data);
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        setScannedData(userDoc.data() as ScannedUser);
       } else {
-        setError(`No registration found for roll: ${rollNumber}`);
+        setError("Data Not Found !");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to fetch user data.");
+      setError("Data Not Found !");
     } finally {
       setLoading(false);
     }
@@ -185,10 +197,10 @@ export default function ScannerPage() {
 
         {/* Error State */}
         {error && !loading && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center mb-6">
+          <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-6 text-center mb-6">
             <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-            <p className="text-red-400 mb-4">{error}</p>
-            <button onClick={resetScanner} className="bg-white/10 hover:bg-white/20 px-6 py-2 rounded font-['Orbitron',sans-serif] uppercase text-sm border border-white/20">
+            <p className="text-red-500 font-bold text-xl mb-4">{error}</p>
+            <button onClick={resetScanner} className="bg-red-500/20 hover:bg-red-500/30 px-6 py-2 rounded font-['Orbitron',sans-serif] uppercase text-sm border border-red-500/30 text-red-100">
               Try Again
             </button>
           </div>

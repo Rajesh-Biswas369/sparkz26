@@ -77,17 +77,17 @@ export default function QRScanner() {
           
           try {
             const parsedData = JSON.parse(decodedText);
-            if (!parsedData.roll_number) {
-              setError("Invalid Ticket Format!");
+            if (!parsedData.roll_number || !parsedData.email) {
+              setError("Data Not Found !");
               return;
             }
 
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("roll_number", "==", parsedData.roll_number));
+            const q = query(usersRef, where("roll_number", "==", parsedData.roll_number), where("email", "==", parsedData.email));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-              setError("Invalid or Fake Ticket! User not found.");
+              setError("Data Not Found !");
             } else {
               const userDoc = querySnapshot.docs[0];
               setScannedStudent({ id: userDoc.id, ...userDoc.data() });
@@ -100,7 +100,7 @@ export default function QRScanner() {
             }
           } catch (err) {
             console.error("Parse or fetch error", err);
-            setError("Invalid QR Code Data!");
+            setError("Data Not Found !");
           }
         },
         (errorMessage) => {
@@ -155,9 +155,9 @@ export default function QRScanner() {
             Scan Event Token
           </h2>
           {error && (
-            <div className="mb-4 flex items-center gap-2 bg-red-500/20 text-red-400 px-4 py-2 rounded-lg border border-red-500/50">
-              <XCircle size={18} />
-              <span className="font-['Inter',sans-serif] text-sm">{error}</span>
+            <div className="mb-4 flex items-center gap-2 bg-red-500/20 text-red-500 px-4 py-2 rounded-lg border border-red-500/50">
+              <XCircle size={20} className="text-red-500 font-bold" />
+              <span className="font-['Inter',sans-serif] text-lg font-bold">{error}</span>
             </div>
           )}
           
