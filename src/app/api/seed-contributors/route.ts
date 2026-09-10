@@ -6,7 +6,7 @@ import path from 'path';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.env.APPDATA || process.env.USERPROFILE || '', '.gemini', 'antigravity-ide', 'brain', 'ed607415-6ba8-4096-a298-8806799708b6', 'scratch', 'contributors.json');
+    const filePath = path.join(process.cwd(), 'src', 'data', 'contributors.json');
     
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: 'Contributors JSON file not found at ' + filePath }, { status: 404 });
