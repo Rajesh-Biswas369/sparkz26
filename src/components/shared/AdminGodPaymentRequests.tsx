@@ -179,7 +179,11 @@ export default function AdminGodPaymentRequests() {
                       </div>
                     </td>
                     <td className="p-4 text-center">
-                      {r.billProofUrl ? (
+                      {r.billProofUrl === 'ADVANCE PAYMENT' ? (
+                        <span className="inline-block px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/50 rounded text-[10px] font-['Orbitron',sans-serif] tracking-wider whitespace-nowrap">
+                          ADVANCE PAYMENT
+                        </span>
+                      ) : r.billProofUrl ? (
                         <a href={r.billProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded transition-colors border border-blue-500/50">
                           <ExternalLink size={16} />
                         </a>

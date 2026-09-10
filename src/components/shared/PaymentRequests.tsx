@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { collection, addDoc, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { IndianRupee } from 'lucide-react';
 
@@ -16,11 +16,32 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
   const [phone, setPhone] = useState('');
   const [billUrl, setBillUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdvance, setIsAdvance] = useState(false);
+  const [hasPastRequests, setHasPastRequests] = useState(false);
+
+  useEffect(() => {
+    if (!userData?.email) return;
+    const q = query(
+      collection(db, "payment_requests"),
+      where("requestedEmail", "==", userData.email)
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      setHasPastRequests(!snapshot.empty);
+      if (!snapshot.empty) {
+        setIsAdvance(false);
+      }
+    });
+    return () => unsub();
+  }, [userData?.email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!purpose || !amount || !upiId || !phone || !billUrl) {
-      alert("Please fill in all fields before submitting.");
+    if (!purpose || !amount || !upiId || !phone) {
+      alert("Please fill in all basic fields before submitting.");
+      return;
+    }
+    if (!isAdvance && !billUrl) {
+      alert("Please provide the bill proof link or select advance payment.");
       return;
     }
 
@@ -31,7 +52,8 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
         amount: Number(amount),
         upiId,
         phone,
-        billProofUrl: billUrl,
+        billProofUrl: isAdvance ? 'ADVANCE PAYMENT' : billUrl,
+        isAdvancePayment: isAdvance,
         requestedBy: userData?.name || 'Admin',
         requestedEmail: userData?.email || '',
         status: 'PENDING_MASTER',
@@ -45,6 +67,7 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
       setUpiId('');
       setPhone('');
       setBillUrl('');
+      setIsAdvance(false);
       
       alert("Payment Request Submitted Successfully!");
     } catch (error) {
@@ -66,7 +89,7 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           <div className="md:col-span-2">
-            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Purpose of Payment</label>
+            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Purpose of Payment <sup className="text-red-500">*</sup></label>
             <input 
               type="text" 
               className="w-full bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-lg px-4 py-3 text-white outline-none font-['Inter',sans-serif] transition-colors"
@@ -77,7 +100,7 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
           </div>
 
           <div>
-            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Amount in ₹</label>
+            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Amount <sup className="text-red-500">*</sup></label>
             <input 
               type="number" 
               className="w-full bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-lg px-4 py-3 text-white outline-none font-['Inter',sans-serif] transition-colors"
@@ -88,7 +111,7 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
           </div>
 
           <div>
-            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">UPI ID</label>
+            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">UPI ID <sup className="text-red-500">*</sup></label>
             <input 
               type="text" 
               className="w-full bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-lg px-4 py-3 text-white outline-none font-['Inter',sans-serif] transition-colors"
@@ -99,7 +122,7 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
           </div>
 
           <div>
-            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Phone Number (Linked to UPI)</label>
+            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Phone Number <sup className="text-red-500">*</sup> (Linked to UPI)</label>
             <input 
               type="tel" 
               className="w-full bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-lg px-4 py-3 text-white outline-none font-['Inter',sans-serif] transition-colors"
@@ -110,8 +133,21 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider">Bill Proof</label>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <label className="flex items-start gap-3 cursor-pointer group mb-4">
+              <input
+                type="checkbox"
+                className="mt-1 w-4 h-4 accent-red-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                checked={isAdvance}
+                onChange={(e) => setIsAdvance(e.target.checked)}
+                disabled={hasPastRequests}
+              />
+              <span className={`text-xs font-['Inter',sans-serif] ${hasPastRequests ? 'text-gray-600' : 'text-red-500 group-hover:text-red-400'} transition-colors`}>
+                I will surely upload the bill proof and paste the bill link here in my next payment request and this is an advance payment.
+              </span>
+            </label>
+
+            <label className={`block text-[#00E5FF] text-xs font-['Orbitron',sans-serif] mb-2 uppercase tracking-wider ${isAdvance ? 'opacity-50' : ''}`}>Bill Proof {!isAdvance && <sup className="text-red-500">*</sup>}</label>
+            <div className={`flex flex-col sm:flex-row gap-3 ${isAdvance ? 'opacity-50 pointer-events-none' : ''}`}>
               <a 
                 href="https://drive.google.com/drive/folders/1t8ZXixzFFFWsZ1Jd9wH_h88A5rW6NSjZ" 
                 target="_blank" 
@@ -126,10 +162,10 @@ export default function PaymentRequests({ userData }: PaymentRequestsProps) {
                 className="flex-1 bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-lg px-4 py-3 sm:py-2 text-white outline-none font-['Inter',sans-serif] transition-colors" 
                 value={billUrl} 
                 onChange={(e) => setBillUrl(e.target.value)} 
-                required 
+                required={!isAdvance} 
               />
             </div>
-            <p className="text-gray-500 text-xs mt-2 font-['Inter',sans-serif]">Please upload your bill to the drive folder and paste the viewable link here.</p>
+            <p className={`text-gray-500 text-xs mt-2 font-['Inter',sans-serif] ${isAdvance ? 'opacity-50' : ''}`}>Please upload your bill to the drive folder and paste the viewable link here.</p>
           </div>
 
           <div className="md:col-span-2 mt-4 flex justify-end">
