@@ -12,6 +12,7 @@ import MasterPaymentRequests from '../shared/MasterPaymentRequests';
 import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import ExpenseBreakdownModal from '../shared/ExpenseBreakdownModal';
 import LogisticsStats from '../shared/LogisticsStats';
+import Contributors from '../shared/Contributors';
 
 interface MasterAdminDashboardProps {
   userData: any;
@@ -23,7 +24,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
   const [completedExpensesList, setCompletedExpensesList] = useState<any[]>([]);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests' | 'absence_requests' | 'logistics'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'scanner' | 'payment_requests' | 'absence_requests' | 'logistics' | 'contributors'>('students');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -175,6 +176,13 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
             <FileText className="w-5 h-5 shrink-0" />
             <span className="truncate">Absence Requests</span>
           </button>
+          <button
+            onClick={() => setActiveTab('contributors')}
+            className={`w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'contributors' ? 'bg-[#00E5FF]/10 border-l-4 border-[#00E5FF] text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]' : 'text-gray-400 hover:text-[#00E5FF] hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <Users className="w-5 h-5 shrink-0" />
+            <span className="truncate">Contributors</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -185,6 +193,7 @@ export default function MasterAdminDashboard({ userData }: MasterAdminDashboardP
           {activeTab === 'scanner' && <QRScanner />}
           {activeTab === 'payment_requests' && <MasterPaymentRequests />}
           {activeTab === 'absence_requests' && <MasterAbsenceRequests />}
+          {activeTab === 'contributors' && <Contributors />}
         </div>
 
         {/* Right Column: Mini Analytics / Action Panel */}

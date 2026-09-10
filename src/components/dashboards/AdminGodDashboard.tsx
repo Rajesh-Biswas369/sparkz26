@@ -13,7 +13,9 @@ import MasterAbsenceRequests from '../shared/MasterAbsenceRequests';
 import AdminGodPermitEdit from '../shared/AdminGodPermitEdit';
 import AdminGodRegistrationPermit from '../shared/AdminGodRegistrationPermit';
 import LogisticsStats from '../shared/LogisticsStats';
-import { Wallet, Edit2, ClipboardList, UserPlus } from 'lucide-react';
+import Contributors from '../shared/Contributors';
+import ContributionAnalysis from '../shared/ContributionAnalysis';
+import { Wallet, Edit2, ClipboardList, UserPlus, BarChart3 } from 'lucide-react';
 
 interface AdminGodDashboardProps {
   userData?: any;
@@ -29,7 +31,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'registration_permit' | 'logistics'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'registration_permit' | 'logistics' | 'contributors' | 'contribution_analysis'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
 
@@ -250,6 +252,20 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <UserPlus className="w-5 h-5 shrink-0" />
             <span className="truncate">Registration Permit</span>
           </button>
+          <button
+            onClick={() => setActiveTab('contributors')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'contributors' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <Users className="w-5 h-5 shrink-0" />
+            <span className="truncate">Contributors</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('contribution_analysis')}
+            className={`w-full relative flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider ${activeTab === 'contribution_analysis' ? 'bg-red-500/10 border-l-4 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'text-gray-400 hover:text-red-500 hover:bg-white/5 border-l-4 border-transparent'}`}
+          >
+            <BarChart3 className="w-5 h-5 shrink-0" />
+            <span className="truncate">Contrib Analysis</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -271,6 +287,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               onToggle={() => toggleControl('allow_registration')}
             />
           )}
+          {activeTab === 'contributors' && <Contributors isAdminGod={true} />}
+          {activeTab === 'contribution_analysis' && <ContributionAnalysis />}
           
           {activeTab === 'settings' && (
             <div className="flex flex-col h-full">
