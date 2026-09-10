@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import fs from 'fs';
 import path from 'path';
 
@@ -22,8 +22,11 @@ export async function GET() {
     let count = 0;
     for (const contributor of contributors) {
       const docRef = doc(db, 'contributors', contributor.rollNumber);
-      await setDoc(docRef, contributor);
-      count++;
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        await setDoc(docRef, contributor);
+        count++;
+      }
     }
 
     return NextResponse.json({ success: true, count, message: `Successfully seeded ${count} contributors.` });
