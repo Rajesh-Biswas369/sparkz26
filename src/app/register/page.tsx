@@ -62,11 +62,11 @@ export default function RegisterPage() {
     const currentYear = new Date().getFullYear();
     const offset = currentYear - 2026;
     
-    const p1 = `002${5 + offset}`;
-    const p2 = `102${4 + offset}`;
-    const p3 = `302${6 + offset}`;
+    const p1 = `002${5 + offset}10801`;
+    const p2 = `102${4 + offset}10801`;
+    const p3 = `302${6 + offset}10801`;
     
-    const prefix = roll.substring(0, 4);
+    const prefix = roll.substring(0, 9);
     return prefix === p1 || prefix === p2 || prefix === p3;
   };
 
