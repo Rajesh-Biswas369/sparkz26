@@ -363,7 +363,7 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
 
       {/* Payment Popup */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-[15vh] z-50 p-4">
           <div className="bg-[#111111] border border-white/10 rounded-xl p-6 w-full max-w-sm relative">
             <button
               onClick={() => setShowPopup(false)}
@@ -410,7 +410,7 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
 
       {/* Add Contributor Popup */}
       {showAddPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-[15vh] z-[60] p-4">
           <div className="bg-[#111111] border border-white/10 rounded-xl p-6 w-full max-w-md relative">
             <button onClick={() => setShowAddPopup(false)} className="absolute right-4 top-4 text-white/50 hover:text-white transition-colors">
               <X className="w-5 h-5" />
@@ -500,7 +500,7 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
 
       {/* Edit Contributor Popup */}
       {showEditPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-[15vh] z-[60] p-4">
           <div className="bg-[#111111] border border-white/10 rounded-xl p-6 w-full max-w-md relative">
             <button onClick={() => setShowEditPopup(false)} className="absolute right-4 top-4 text-white/50 hover:text-white transition-colors">
               <X className="w-5 h-5" />
