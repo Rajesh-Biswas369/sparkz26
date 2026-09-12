@@ -269,6 +269,11 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     if (student.phone) {
       addRow("Phone Number:", student.phone);
     }
+    
+    if (student.paymentMethod) {
+      const methodStr = student.paymentMethod.charAt(0).toUpperCase() + student.paymentMethod.slice(1);
+      addRow("Payment Method:", methodStr);
+    }
 
     // Amount Box
     yPos += 5;
