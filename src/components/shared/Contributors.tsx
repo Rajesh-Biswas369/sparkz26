@@ -296,10 +296,10 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     let recipientTitle = "(Admin)";
     const rLower = recipientName.toLowerCase();
     
-    if (rLower.includes("anshuman")) {
+    if (rLower.includes("anshuman") || rLower.includes("ganguliayushman@gmail.com")) {
       recipientName = "Anshuman Ganguli";
       recipientTitle = "(General Secretary)";
-    } else if (rLower.includes("mrittika")) {
+    } else if (rLower.includes("mrittika") || rLower.includes("mrittikabiswas2024@gmail.com")) {
       recipientName = "Mrittika Biswas";
       recipientTitle = "(Treasurer)";
     } else if (rLower.includes("rajesh")) {
