@@ -252,19 +252,23 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     const dateStr = student.timestamp ? new Date(student.timestamp).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN');
     
     addRow("Date of Issue:", dateStr);
-    addRow("Name:", student.name || "N/A");
     
-    let identifier = "N/A";
-    if (student.section !== 'Others') {
-      identifier = student.rollNumber || "N/A";
+    if (student.name) {
+      addRow("Name:", student.name);
     }
     
-    addRow("Roll Number:", identifier);
+    if (student.section !== 'Others' && student.rollNumber) {
+      addRow("Roll Number:", student.rollNumber);
+    }
     
-    const secStr = student.section === 'Others' ? "N/A" : student.section || "N/A";
-    addRow("Section:", secStr);
+    if (student.section && student.section !== 'Others') {
+      const secStr = `${student.section}${student.subSection ? ` (${student.subSection})` : ''}`;
+      addRow("Section:", secStr);
+    }
     
-    addRow("Phone Number:", student.phone || "N/A");
+    if (student.phone) {
+      addRow("Phone Number:", student.phone);
+    }
 
     // Amount Box
     yPos += 5;
@@ -281,32 +285,36 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     doc.text("Amount Received:", 28, yPos + 8);
     doc.text(`Rs. ${student.amount}/-`, 185, yPos + 8, { align: "right" });
     
-    yPos += 30;
+    // Fixed bottom Y for signature and stamp
+    const bottomY = 125;
     
-    // Signatures
+    // Signature
+    let recipientName = student.recipient || "Admin";
+    let recipientTitle = "(Admin)";
+    const rLower = recipientName.toLowerCase();
+    
+    if (rLower.includes("anshuman")) {
+      recipientName = "Anshuman Ganguli";
+      recipientTitle = "(General Secretary)";
+    } else if (rLower.includes("mrittika")) {
+      recipientName = "Mrittika Biswas";
+      recipientTitle = "(Treasurer)";
+    } else if (rLower.includes("rajesh")) {
+      recipientName = "Rajesh Biswas";
+      recipientTitle = "(Treasurer)";
+    }
+
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    
-    // Signature 1
     doc.setDrawColor(100, 100, 100);
-    doc.line(130, yPos, 185, yPos);
-    doc.text("Rajesh Biswas", 157.5, yPos + 4, { align: "center" });
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(100, 100, 100);
-    doc.text("(Treasurer)", 157.5, yPos + 8, { align: "center" });
-    
-    yPos += 18;
-    
-    // Signature 2
-    doc.setDrawColor(100, 100, 100);
-    doc.line(130, yPos, 185, yPos);
-    doc.setFont("helvetica", "bold");
+    doc.setLineWidth(0.5);
+    doc.line(130, bottomY, 185, bottomY);
     doc.setTextColor(50, 50, 50);
-    doc.text("Mrittika Biswas", 157.5, yPos + 4, { align: "center" });
+    doc.text(recipientName, 157.5, bottomY + 5, { align: "center" });
     doc.setFont("helvetica", "italic");
     doc.setTextColor(100, 100, 100);
-    doc.text("(Treasurer)", 157.5, yPos + 8, { align: "center" });
-
+    doc.text(recipientTitle, 157.5, bottomY + 9, { align: "center" });
+    
     // Payment Processed Stamp
     doc.setDrawColor(46, 204, 113); // Green color
     doc.setTextColor(46, 204, 113);
@@ -316,23 +324,13 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     
     const stampText = "PAYMENT PROCESSED";
     const textWidth = doc.getTextWidth(stampText);
-    
-    // Add stamp rotated
-    doc.text(stampText, 30, yPos - 5, { angle: 10 });
-    // And draw rotated rect (using 4 lines)
-    const angleRad = -10 * Math.PI / 180;
     const stampW = textWidth + 10;
     const stampH = 12;
-    const cx = 30 + textWidth / 2;
-    const cy = yPos - 8;
     
-    // We'll just skip the box for the rotated stamp to keep it simple and clean,
-    // or just draw a straight one:
-    doc.roundedRect(20, yPos - 14, stampW, stampH, 2, 2, "D");
-    // Actually wait, let's keep it straight!
+    // Draw straight stamp aligned with signature line
     doc.setFillColor(255, 255, 255);
-    doc.roundedRect(20, yPos - 14, stampW, stampH, 2, 2, "DF"); // white bg to cover lines
-    doc.text(stampText, 25, yPos - 5, { angle: 0 }); // straight text
+    doc.roundedRect(20, bottomY - stampH + 2, stampW, stampH, 2, 2, "DF"); 
+    doc.text(stampText, 25, bottomY - stampH + 10.5); 
 
     // Outer Border
     doc.setDrawColor(40, 53, 83);
