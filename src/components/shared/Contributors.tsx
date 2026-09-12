@@ -204,6 +204,144 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     doc.save(`Contributors_${activeTab}_${activeSection}.pdf`);
   };
 
+  const downloadReceipt = (student: any) => {
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a5'
+    });
+    
+    // Set font styles
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(40, 53, 83);
+    doc.text("SPARKZ 2K26", 105, 20, { align: "center" });
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(50, 50, 50);
+    doc.text("Freshers' For '29 Batch - Official Payment Receipt", 105, 28, { align: "center" });
+
+    // Dashed line
+    doc.setLineDashPattern([2, 2], 0);
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+    doc.setLineDashPattern([], 0); // reset
+
+    doc.setFontSize(10);
+    
+    let yPos = 45;
+    const leftCol = 25;
+    const rightCol = 185;
+
+    // Helper to add row
+    const addRow = (label: string, value: string) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(label, leftCol, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(value, rightCol, yPos, { align: "right" });
+      
+      // Add a subtle line under each row
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.2);
+      doc.line(leftCol, yPos + 3, rightCol, yPos + 3);
+      
+      yPos += 10;
+    };
+
+    const dateStr = student.timestamp ? new Date(student.timestamp).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN');
+    
+    addRow("Date of Issue:", dateStr);
+    addRow("Name:", student.name || "N/A");
+    
+    let identifier = "N/A";
+    if (student.section !== 'Others') {
+      identifier = student.rollNumber || "N/A";
+    }
+    
+    addRow("Roll Number:", identifier);
+    
+    const secStr = student.section === 'Others' ? "N/A" : student.section || "N/A";
+    addRow("Section:", secStr);
+    
+    addRow("Phone Number:", student.phone || "N/A");
+
+    // Amount Box
+    yPos += 5;
+    doc.setFillColor(248, 249, 250);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(20, yPos, 170, 12, 2, 2, "FD");
+    
+    // Blue accent line on left of box
+    doc.setFillColor(40, 53, 83);
+    doc.rect(20, yPos, 3, 12, "F");
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Amount Received:", 28, yPos + 8);
+    doc.text(`Rs. ${student.amount}/-`, 185, yPos + 8, { align: "right" });
+    
+    yPos += 30;
+    
+    // Signatures
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    
+    // Signature 1
+    doc.setDrawColor(100, 100, 100);
+    doc.line(130, yPos, 185, yPos);
+    doc.text("Rajesh Biswas", 157.5, yPos + 4, { align: "center" });
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 100, 100);
+    doc.text("(Treasurer)", 157.5, yPos + 8, { align: "center" });
+    
+    yPos += 18;
+    
+    // Signature 2
+    doc.setDrawColor(100, 100, 100);
+    doc.line(130, yPos, 185, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(50, 50, 50);
+    doc.text("Mrittika Biswas", 157.5, yPos + 4, { align: "center" });
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 100, 100);
+    doc.text("(Treasurer)", 157.5, yPos + 8, { align: "center" });
+
+    // Payment Processed Stamp
+    doc.setDrawColor(46, 204, 113); // Green color
+    doc.setTextColor(46, 204, 113);
+    doc.setLineWidth(0.8);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    
+    const stampText = "PAYMENT PROCESSED";
+    const textWidth = doc.getTextWidth(stampText);
+    
+    // Add stamp rotated
+    doc.text(stampText, 30, yPos - 5, { angle: 10 });
+    // And draw rotated rect (using 4 lines)
+    const angleRad = -10 * Math.PI / 180;
+    const stampW = textWidth + 10;
+    const stampH = 12;
+    const cx = 30 + textWidth / 2;
+    const cy = yPos - 8;
+    
+    // We'll just skip the box for the rotated stamp to keep it simple and clean,
+    // or just draw a straight one:
+    doc.roundedRect(20, yPos - 14, stampW, stampH, 2, 2, "D");
+    // Actually wait, let's keep it straight!
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(20, yPos - 14, stampW, stampH, 2, 2, "DF"); // white bg to cover lines
+    doc.text(stampText, 25, yPos - 5, { angle: 0 }); // straight text
+
+    // Outer Border
+    doc.setDrawColor(40, 53, 83);
+    doc.setLineWidth(0.8);
+    doc.roundedRect(8, 8, 194, 132, 3, 3, "D");
+
+    doc.save(`Receipt_${student.name || 'Student'}.pdf`);
+  };
+
   return (
     <div className="bg-[#111111] p-6 rounded-xl border border-white/10">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -286,6 +424,7 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
                   <th className="px-6 py-4">Amount</th>
                   <th className="px-6 py-4">Method</th>
                   <th className="px-6 py-4">Recipient</th>
+                  <th className="px-6 py-4">Money Receipt</th>
                   <th className="px-6 py-4 rounded-tr-lg">Action</th>
                 </>
               )}
@@ -328,6 +467,15 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
                     <td className="px-6 py-4 text-[#d4ff00] font-bold">₹{student.amount}</td>
                     <td className="px-6 py-4 capitalize">{student.paymentMethod}</td>
                     <td className="px-6 py-4">{student.recipient}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => downloadReceipt(student)}
+                        className="p-1.5 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded border border-blue-500/30 transition-colors flex items-center justify-center"
+                        title="Download Receipt"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2 items-center">
                         <button
