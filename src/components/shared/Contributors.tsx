@@ -296,8 +296,8 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     let recipientTitle = "(Admin)";
     const rLower = recipientName.toLowerCase();
     
-    if (rLower.includes("anshuman") || rLower.includes("ganguliayushman@gmail.com")) {
-      recipientName = "Anshuman Ganguli";
+    if (rLower.includes("anshuman") || rLower.includes("ayushman") || rLower.includes("ganguliayushman@gmail.com")) {
+      recipientName = "Ayushman Ganguli";
       recipientTitle = "(General Secretary)";
     } else if (rLower.includes("mrittika") || rLower.includes("mrittikabiswas2024@gmail.com")) {
       recipientName = "Mrittika Biswas";
