@@ -270,11 +270,6 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
       addRow("Phone Number:", student.phone);
     }
     
-    if (student.paymentMethod) {
-      const methodStr = student.paymentMethod.charAt(0).toUpperCase() + student.paymentMethod.slice(1);
-      addRow("Payment Method:", methodStr);
-    }
-
     // Amount Box
     yPos += 5;
     doc.setFillColor(248, 249, 250);
@@ -287,7 +282,10 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
     
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("Amount Received:", 28, yPos + 8);
+    
+    const methodStr = student.paymentMethod ? ` (${student.paymentMethod.charAt(0).toUpperCase() + student.paymentMethod.slice(1)})` : "";
+    doc.text(`Amount Received${methodStr}:`, 28, yPos + 8);
+    
     doc.text(`Rs. ${student.amount}/-`, 185, yPos + 8, { align: "right" });
     
     // Fixed bottom Y for signature and stamp
