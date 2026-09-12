@@ -17,6 +17,7 @@ interface ScannedUser {
   breakfast_scanned: boolean;
   lunch_scanned: boolean;
   tshirt_scanned: boolean;
+  is_absent?: boolean;
 }
 
 export default function ScannerPage() {
@@ -126,18 +127,41 @@ export default function ScannerPage() {
       return;
     }
 
-    try {
-      const docRef = doc(db, "users", scannedData.roll_number);
-      await updateDoc(docRef, {
-        [field]: true
-      });
-      
-      // Update local state
-      setScannedData({ ...scannedData, [field]: true });
-      showFlash("Successfully logged!", "success");
+    // Backend validation: Entry must be marked before T-Shirt
+    if (field === 'tshirt_scanned' && !scannedData.entry_scanned && !scannedData.is_absent) {
+      showFlash("Entry Required First!", "error");
+      return;
+    }
 
-    } catch (err: any) {
-      showFlash("Database error. Try again.", "error");
+    setActionLoading(field);
+    try {
+      // Find the user document by roll number
+      const q = query(collection(db, "users"), where("roll_number", "==", scannedData.roll_number));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        
+        // Update the field
+        await updateDoc(userDoc.ref, {
+          [field]: true,
+          [`${field}_time`]: new Date().toLocaleString()
+        });
+        
+        // Update local state
+        setScannedData({
+          ...scannedData,
+          [field]: true,
+          [`${field}_time`]: new Date().toLocaleString()
+        });
+        
+        showFlash(`Successfully marked ${field.replace('_scanned', '')}!`, "success");
+      }
+    } catch (err) {
+      console.error("Error updating user data:", err);
+      showFlash("Failed to update. Try again.", "error");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -267,6 +291,8 @@ export default function ScannerPage() {
                 label="Give T-Shirt"
                 isClaimed={scannedData.tshirt_scanned}
                 onClick={() => handleAction('tshirt_scanned')}
+                isDisabled={!scannedData.entry_scanned && !scannedData.is_absent}
+                disabledReason="Entry Required"
               />
 
             </div>
@@ -287,19 +313,22 @@ export default function ScannerPage() {
   );
 }
 
-// Helper Component for Action Buttons
 function ActionButton({ 
   icon, 
   label, 
   isClaimed, 
   onClick,
-  highlightColor
+  highlightColor,
+  isDisabled,
+  disabledReason
 }: { 
   icon: React.ReactNode, 
   label: string, 
   isClaimed: boolean, 
   onClick: () => void,
-  highlightColor?: 'green' | 'red'
+  highlightColor?: 'green' | 'red',
+  isDisabled?: boolean,
+  disabledReason?: string
 }) {
   
   let baseColor = "border-white/20 hover:bg-white/10 text-white";
@@ -314,6 +343,18 @@ function ActionButton({
           <span className="font-['Orbitron',sans-serif] font-bold text-sm tracking-wide">{label}</span>
         </div>
         <span className="text-xs uppercase font-bold tracking-widest text-slate-600">Claimed</span>
+      </button>
+    );
+  }
+
+  if (isDisabled) {
+    return (
+      <button disabled className="w-full flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/5 text-slate-500 opacity-50 cursor-not-allowed">
+        <div className="flex items-center gap-3">
+          {icon}
+          <span className="font-['Orbitron',sans-serif] font-bold text-sm tracking-wide line-through decoration-slate-600">{label}</span>
+        </div>
+        <span className="text-xs uppercase font-bold tracking-widest text-red-500">{disabledReason || "Locked"}</span>
       </button>
     );
   }

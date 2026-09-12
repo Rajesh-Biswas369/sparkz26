@@ -123,6 +123,14 @@ export default function QRScanner() {
   const handleAction = async (fieldBase: string) => {
     if (!scannedStudent) return;
     
+    const isEntryDone = scannedStudent.entry_scanned === true;
+    const isAbsent = scannedStudent.is_absent === true;
+    
+    if (fieldBase === 'tshirt' && !isEntryDone && !isAbsent) {
+      alert("Entry must be marked before marking T-Shirt.");
+      return;
+    }
+    
     setUpdating(fieldBase);
     try {
       const fieldStatus = `${fieldBase}_scanned`;
@@ -303,6 +311,7 @@ function ActionButton({ label, fieldBase, scannedStudent, updating, onAction, is
   const isUpdating = updating === fieldBase;
   const timeStr = scannedStudent[`${fieldBase}_scanned_time`];
   const isAbsent = scannedStudent.is_absent === true;
+  const isEntryDone = scannedStudent.entry_scanned === true;
 
   if (isAbsent && fieldBase !== 'tshirt') {
     return (
@@ -329,6 +338,18 @@ function ActionButton({ label, fieldBase, scannedStudent, updating, onAction, is
           <span>{label} Done</span>
         </div>
         {timeStr && <span className="text-[10px] text-green-500/70 mt-1 lowercase font-['Inter',sans-serif] tracking-normal truncate w-full text-center">{timeStr}</span>}
+      </button>
+    );
+  }
+
+  if (fieldBase === 'tshirt' && !isEntryDone && !isAbsent) {
+    return (
+      <button 
+        disabled
+        className="flex flex-col items-center justify-center py-2 px-2 border border-white/10 bg-white/5 rounded-lg font-['Orbitron',sans-serif] uppercase tracking-wider text-gray-500 opacity-50 cursor-not-allowed pointer-events-none text-center"
+      >
+        <span className="text-sm">{label} Locked</span>
+        <span className="text-[10px] mt-1 text-gray-400 normal-case tracking-normal">Requires Entry First</span>
       </button>
     );
   }
