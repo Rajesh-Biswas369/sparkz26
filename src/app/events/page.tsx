@@ -64,14 +64,17 @@ export default function EventsPage() {
   const [userParticipations, setUserParticipations] = useState<any[]>([]);
   const [editData, setEditData] = useState<any>(null);
   const [allowRegistration, setAllowRegistration] = useState<boolean | null>(null);
+  const [allowRegistrationEdit, setAllowRegistrationEdit] = useState<boolean | null>(null);
 
   useEffect(() => {
     const unsubControls = onSnapshot(doc(db, "settings", "scanner_controls"), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         setAllowRegistration(!!data.allow_registration);
+        setAllowRegistrationEdit(!!data.allow_registration_edit);
       } else {
         setAllowRegistration(false);
+        setAllowRegistrationEdit(false);
       }
     });
 
@@ -186,30 +189,30 @@ export default function EventsPage() {
                     REGISTERED <CheckCircle2 className="w-4 h-4" />
                   </div>
                 )}
+                
                 {allowRegistration !== false ? (
-                  <>
-                    <button
-                      onClick={() => handleRegisterClick(event.title)}
-                      className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
-                      style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
-                    >
-                      Register Now
-                    </button>
-                    {registeredEntries.length > 0 && (
-                      <div className="mt-3 text-center">
-                        <span 
-                          onClick={() => router.push('/dashboard')}
-                          className="text-sm text-[#00E5FF] hover:text-white underline cursor-pointer transition-colors"
-                        >
-                          Edit Registration
-                        </span>
-                      </div>
-                    )}
-                  </>
+                  <button
+                    onClick={() => handleRegisterClick(event.title)}
+                    className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
+                    style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
+                  >
+                    Register Now
+                  </button>
                 ) : (
                   <div className="w-full bg-white/5 border border-red-500/50 text-red-400 py-3 text-center font-['Orbitron',sans-serif] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] text-sm"
                        style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}>
                     Registration Closed
+                  </div>
+                )}
+
+                {registeredEntries.length > 0 && allowRegistrationEdit !== false && (
+                  <div className="mt-3 text-center">
+                    <span 
+                      onClick={() => router.push('/dashboard')}
+                      className="text-sm text-[#00E5FF] hover:text-white underline cursor-pointer transition-colors"
+                    >
+                      Edit Registration
+                    </span>
                   </div>
                 )}
               </div>
