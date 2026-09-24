@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import Footer from '@/components/Footer';
 import UserParticipationModal from '@/components/events/UserParticipationModal';
@@ -63,8 +63,20 @@ export default function EventsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userParticipations, setUserParticipations] = useState<any[]>([]);
   const [editData, setEditData] = useState<any>(null);
+  const [allowRegistration, setAllowRegistration] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const unsubControls = onSnapshot(doc(db, "settings", "scanner_controls"), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setAllowRegistration(!!data.allow_registration);
+      } else {
+        setAllowRegistration(false);
+      }
+    });
+
+    let unsubscribeSnapshot: () => void;
+
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user && user.email) {
         const q = query(
@@ -72,21 +84,24 @@ export default function EventsPage() {
           where('participantIds', 'array-contains', user.email)
         );
         
-        const unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
           const participations = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           }));
           setUserParticipations(participations);
         });
-
-        return () => unsubscribeSnapshot();
       } else {
         setUserParticipations([]);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubControls();
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
   }, []);
 
   const handleRegisterClick = (eventTitle: string) => {
@@ -147,8 +162,13 @@ export default function EventsPage() {
               <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${event.color} opacity-50 group-hover:opacity-100 transition-opacity`} />
               
               <div className="flex flex-col gap-4 relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-500">
+                <div className="relative w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-500">
                   {event.icon}
+                  {registeredEntries.length > 0 && (
+                    <div className="absolute -top-2 -right-2 bg-[#00E5FF] text-black text-[10px] font-extrabold w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_8px_#00E5FF] z-10">
+                      {registeredEntries.length}
+                    </div>
+                  )}
                 </div>
                 
                 <h2 className="text-2xl font-['Orbitron',sans-serif] font-bold text-white uppercase tracking-wider">
@@ -163,16 +183,35 @@ export default function EventsPage() {
               <div className="mt-8 pt-6 border-t border-white/10 relative z-10 flex flex-col gap-3">
                 {registeredEntries.length > 0 && (
                   <div className="w-full bg-white/5 border border-green-500/50 text-green-400 py-2 text-center font-['Orbitron',sans-serif] font-bold rounded flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.1)] text-xs">
-                    REGISTERED ({registeredEntries.length}) <CheckCircle2 className="w-4 h-4" />
+                    REGISTERED <CheckCircle2 className="w-4 h-4" />
                   </div>
                 )}
-                <button
-                  onClick={() => handleRegisterClick(event.title)}
-                  className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
-                  style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
-                >
-                  Register Now
-                </button>
+                {allowRegistration !== false ? (
+                  <>
+                    <button
+                      onClick={() => handleRegisterClick(event.title)}
+                      className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
+                      style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
+                    >
+                      Register Now
+                    </button>
+                    {registeredEntries.length > 0 && (
+                      <div className="mt-3 text-center">
+                        <span 
+                          onClick={() => router.push('/dashboard')}
+                          className="text-sm text-[#00E5FF] hover:text-white underline cursor-pointer transition-colors"
+                        >
+                          Edit Registration
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full bg-white/5 border border-red-500/50 text-red-400 py-3 text-center font-['Orbitron',sans-serif] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.1)] text-sm"
+                       style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}>
+                    Registration Closed
+                  </div>
+                )}
               </div>
             </motion.div>
           )})}
