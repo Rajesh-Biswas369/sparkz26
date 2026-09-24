@@ -132,7 +132,7 @@ export default function EventsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl">
           {EVENTS.map((event, index) => {
-            const registeredEntry = userParticipations.find(p => p.eventCategory === event.title);
+            const registeredEntries = userParticipations.filter(p => p.eventCategory === event.title);
             
             return (
             <motion.div
@@ -160,28 +160,19 @@ export default function EventsPage() {
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
-                {registeredEntry ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="w-full bg-white/5 border border-green-500/50 text-green-400 py-3 text-center font-['Orbitron',sans-serif] font-bold rounded flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                      REGISTERED <CheckCircle2 className="w-4 h-4" />
-                    </div>
-                    <button 
-                      onClick={() => handleEditClick(event.title, registeredEntry)} 
-                      className="text-xs text-[#00E5FF] hover:text-white underline w-full text-center transition-colors font-['Inter',sans-serif]"
-                    >
-                      Edit Registration
-                    </button>
+              <div className="mt-8 pt-6 border-t border-white/10 relative z-10 flex flex-col gap-3">
+                {registeredEntries.length > 0 && (
+                  <div className="w-full bg-white/5 border border-green-500/50 text-green-400 py-2 text-center font-['Orbitron',sans-serif] font-bold rounded flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.1)] text-xs">
+                    REGISTERED ({registeredEntries.length}) <CheckCircle2 className="w-4 h-4" />
                   </div>
-                ) : (
-                  <button
-                    onClick={() => handleRegisterClick(event.title)}
-                    className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
-                    style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
-                  >
-                    Register Now
-                  </button>
                 )}
+                <button
+                  onClick={() => handleRegisterClick(event.title)}
+                  className="w-full bg-[#00E5FF]/10 border border-[#00E5FF]/50 text-[#00E5FF] font-['Orbitron',sans-serif] font-bold py-3 uppercase tracking-widest transition-all duration-300 hover:bg-[#00E5FF] hover:text-black hover:shadow-[0_0_20px_rgba(0,229,255,0.6)]"
+                  style={{ clipPath: 'polygon(5% 0, 100% 0, 95% 100%, 0 100%)' }}
+                >
+                  Register Now
+                </button>
               </div>
             </motion.div>
           )})}
