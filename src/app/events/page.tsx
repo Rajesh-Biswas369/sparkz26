@@ -70,7 +70,7 @@ export default function EventsPage() {
     const unsubControls = onSnapshot(doc(db, "settings", "scanner_controls"), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
-        setAllowRegistration(!!data.allow_registration);
+        setAllowRegistration(!!data.allow_event_registration);
         setAllowRegistrationEdit(!!data.allow_registration_edit);
       } else {
         setAllowRegistration(false);
