@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
-import { User, LogOut, CheckCircle2, XCircle, Circle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2 } from 'lucide-react';
-import { collection, query, where, getDocs, updateDoc, onSnapshot } from 'firebase/firestore';
+import { User, LogOut, CheckCircle2, XCircle, Circle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2, Trash2 } from 'lucide-react';
+import { collection, query, where, getDocs, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
@@ -143,6 +143,17 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
       window.location.href = "/login";
     } catch (error) {
       console.error("Error logging out:", error);
+    }
+  };
+
+  const handleDeleteParticipation = async (id: string) => {
+    if (confirm("Are you sure you want to delete this event registration? This cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, 'participations', id));
+      } catch (err) {
+        console.error("Error deleting participation:", err);
+        alert("Failed to delete registration. Please try again.");
+      }
     }
   };
 
@@ -376,13 +387,24 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
           <div className="w-full mt-8 bg-black/60 backdrop-blur-md border border-[#00E5FF]/20 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,229,255,0.1)] relative overflow-hidden">
             <h2 className="font-['Orbitron',sans-serif] text-xl font-bold text-[#00E5FF] uppercase tracking-widest mb-6 flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#00E5FF] shadow-[0_0_10px_#00E5FF] rotate-45"></div>
-              <span>Your Activities / My Teams</span>
+              <span>My Activities</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {userParticipations.map((part) => (
-                <div key={part.id} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col justify-between hover:border-[#00E5FF]/50 transition-colors group">
+                <div key={part.id} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col justify-between hover:border-[#00E5FF]/50 transition-colors group relative">
+                  
+                  {part.submittedBy === userData.email && (
+                    <button 
+                      onClick={() => handleDeleteParticipation(part.id)}
+                      className="absolute top-4 right-4 text-red-500 hover:text-red-400 p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-colors"
+                      title="Delete Registration"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+
                   <div className="flex flex-col gap-2 mb-4">
-                    <span className="text-[#00E5FF] font-['Orbitron',sans-serif] font-bold text-lg uppercase tracking-wider">{part.eventCategory}</span>
+                    <span className="text-[#00E5FF] font-['Orbitron',sans-serif] font-bold text-lg uppercase tracking-wider pr-8">{part.eventCategory}</span>
                     <span className="text-white/60 text-xs uppercase tracking-widest font-semibold bg-white/5 px-2 py-1 rounded self-start">{part.performanceType}</span>
                     {part.songName && (
                       <span className="text-white text-sm font-['Inter',sans-serif] mt-2">
