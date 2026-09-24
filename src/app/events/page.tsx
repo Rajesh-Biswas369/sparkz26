@@ -71,7 +71,7 @@ export default function EventsPage() {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         setAllowRegistration(!!data.allow_event_registration);
-        setAllowRegistrationEdit(!!data.allow_registration_edit);
+        setAllowRegistrationEdit(!!data.allow_event_registration_edit);
       } else {
         setAllowRegistration(false);
         setAllowRegistrationEdit(false);

@@ -41,6 +41,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
     allow_breakfast: false,
     allow_lunch: false,
     allow_registration_edit: false,
+    allow_event_registration_edit: false,
     allow_registration: false,
     allow_event_registration: false
   });
@@ -65,6 +66,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
           allow_breakfast: !!data.allow_breakfast,
           allow_lunch: !!data.allow_lunch,
           allow_registration_edit: !!data.allow_registration_edit,
+          allow_event_registration_edit: !!data.allow_event_registration_edit,
           allow_registration: !!data.allow_registration,
           allow_event_registration: !!data.allow_event_registration
         });
@@ -281,6 +283,8 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <AdminGodPermitEdit 
               allowEdit={scannerControls.allow_registration_edit} 
               onToggle={() => toggleControl('allow_registration_edit')}
+              allowEventEdit={scannerControls.allow_event_registration_edit}
+              onToggleEventEdit={() => toggleControl('allow_event_registration_edit')}
             />
           )}
           {activeTab === 'registration_permit' && (
@@ -303,7 +307,7 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Object.entries(scannerControls)
-                  .filter(([key]) => key !== 'allow_registration_edit' && key !== 'allow_registration' && key !== 'allow_event_registration')
+                  .filter(([key]) => key !== 'allow_registration_edit' && key !== 'allow_registration' && key !== 'allow_event_registration' && key !== 'allow_event_registration_edit')
                   .map(([key, value]) => {
                   const label = key.replace("allow_", "").toUpperCase();
                   return (

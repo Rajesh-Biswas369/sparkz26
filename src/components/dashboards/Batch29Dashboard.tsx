@@ -75,6 +75,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
   const [editData, setEditData] = useState<any>(null);
 
   const [allowRegistrationEdit, setAllowRegistrationEdit] = useState(false);
+  const [allowEventRegistrationEdit, setAllowEventRegistrationEdit] = useState(false);
   const [isRegEditModalOpen, setIsRegEditModalOpen] = useState(false);
 
   React.useEffect(() => {
@@ -83,6 +84,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         setAllowRegistrationEdit(!!data.allow_registration_edit);
+        setAllowEventRegistrationEdit(!!data.allow_event_registration_edit);
       }
     });
     return () => unsubControls();
@@ -393,7 +395,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
               {userParticipations.map((part) => (
                 <div key={part.id} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col justify-between hover:border-[#00E5FF]/50 transition-colors group relative">
                   
-                  {part.submittedBy === userData.email && (
+                  {part.submittedBy === userData.email && allowEventRegistrationEdit && (
                     <button 
                       onClick={() => handleDeleteParticipation(part.id)}
                       className="absolute top-4 right-4 text-red-500 hover:text-red-400 p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-colors"
@@ -415,7 +417,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
                       <span className="text-white/40 text-xs">Team:</span> {part.participantNames ? part.participantNames.join(', ') : part.participantName || part.rollNumber}
                     </span>
                   </div>
-                  {part.submittedBy === userData.email && (
+                  {part.submittedBy === userData.email && allowEventRegistrationEdit && (
                     <button
                       onClick={() => {
                         setSelectedEvent(part.eventCategory);

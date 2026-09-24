@@ -10,9 +10,11 @@ import autoTable from 'jspdf-autotable';
 interface AdminGodPermitEditProps {
   allowEdit: boolean;
   onToggle: () => void;
+  allowEventEdit: boolean;
+  onToggleEventEdit: () => void;
 }
 
-export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPermitEditProps) {
+export default function AdminGodPermitEdit({ allowEdit, onToggle, allowEventEdit, onToggleEventEdit }: AdminGodPermitEditProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -113,6 +115,31 @@ export default function AdminGodPermitEdit({ allowEdit, onToggle }: AdminGodPerm
           {allowEdit ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
           <span className="font-['Orbitron',sans-serif] font-bold tracking-widest uppercase text-sm">
             {allowEdit ? 'EDITING ON' : 'EDITING OFF'}
+          </span>
+        </button>
+      </div>
+
+      <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div>
+          <h3 className="text-lg font-bold font-['Orbitron',sans-serif] text-white tracking-wider mb-2">
+            Event Registration Editing
+          </h3>
+          <p className="text-gray-400 text-sm font-['Inter',sans-serif]">
+            Turn this on to allow students to edit or cancel (delete) their event performance registrations. If turned off, edit and delete options will disappear from their dashboard.
+          </p>
+        </div>
+        
+        <button
+          onClick={onToggleEventEdit}
+          className={`flex items-center gap-3 px-6 py-3 rounded-xl border transition-all duration-300 ${
+            allowEventEdit 
+              ? 'bg-blue-500/20 border-blue-500 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' 
+              : 'bg-white/5 border-white/20 text-gray-400 hover:bg-white/10'
+          }`}
+        >
+          {allowEventEdit ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
+          <span className="font-['Orbitron',sans-serif] font-bold tracking-widest uppercase text-sm">
+            {allowEventEdit ? 'EDITING ON' : 'EDITING OFF'}
           </span>
         </button>
       </div>
