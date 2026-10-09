@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs, doc, updateDoc, onSnapshot, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, onSnapshot, setDoc, deleteDoc, getDoc, writeBatch } from "firebase/firestore";
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { jsPDF } from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileDown, CheckCircle, IndianRupee, Utensils, Users, Search, Lock, ShieldAlert, LogOut, Trash2, Loader2, ChevronRight } from "lucide-react";
+import { FileDown, CheckCircle, IndianRupee, Utensils, Users, Search, Lock, ShieldAlert, LogOut, Trash2, Loader2, ChevronRight, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
-type Tab = "operations" | "performers" | "treasury" | "manage_admins";
+type Tab = "operations" | "performers" | "treasury" | "manage_admins" | "god_mode";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -35,6 +35,13 @@ export default function AdminDashboard() {
   // Master Admin Data
   const [adminEmails, setAdminEmails] = useState<string[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
+
+  // God Mode Data
+  const [godModeActive, setGodModeActive] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; field: string; isAll: boolean } | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
     if (!auth) {
@@ -191,6 +198,60 @@ export default function AdminDashboard() {
     doc.save(`${student.roll_number}_profile.pdf`);
   };
 
+  const showToast = (msg: string, type: "success" | "error") => {
+    setToastMessage({ msg, type });
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const executeBulkUpdate = async () => {
+    if (!modalConfig || !db) return;
+    setBulkUpdating(true);
+    try {
+      const { field, isAll } = modalConfig;
+      const q = query(collection(db, "users"), where("entry_scanned", "==", true));
+      const snap = await getDocs(q);
+      const docs = snap.docs;
+      
+      const chunks = [];
+      for (let i = 0; i < docs.length; i += 400) {
+        chunks.push(docs.slice(i, i + 400));
+      }
+
+      await Promise.all(chunks.map(async (chunk) => {
+        const batch = writeBatch(db);
+        chunk.forEach((d) => {
+          batch.update(d.ref, { [field]: isAll });
+        });
+        await batch.commit();
+      }));
+
+      showToast(`Bulk update successful: ${field.replace('_scanned', '')} set to ${isAll ? 'ALL' : 'NONE'}`, "success");
+      setModalConfig(null);
+      setConfirmText("");
+      
+      // Refresh operations data
+      const fetchOperations = async () => {
+        const q29 = query(collection(db, "users"), where("batch", "==", "29"));
+        const snap29 = await getDocs(q29);
+        let veg = 0;
+        let nonVeg = 0;
+        snap29.forEach((doc) => {
+          if (doc.data().food_preference === "Veg") veg++;
+          if (doc.data().food_preference === "Non-Veg") nonVeg++;
+        });
+        setVegCount(veg);
+        setNonVegCount(nonVeg);
+      };
+      await fetchOperations();
+
+    } catch (err) {
+      console.error(err);
+      showToast("Bulk update failed.", "error");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAdminEmail || !db) return;
@@ -249,14 +310,15 @@ export default function AdminDashboard() {
     );
   }
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
+  const tabs: { id: Tab; label: string; icon: React.ReactNode; adminOnly?: boolean; isGod?: boolean }[] = [
     { id: "operations", label: "Operations", icon: <Utensils className="w-4 h-4" /> },
     { id: "performers", label: "Performers", icon: <Users className="w-4 h-4" /> },
     { id: "treasury", label: "Treasury", icon: <IndianRupee className="w-4 h-4" />, adminOnly: true },
     { id: "manage_admins", label: "Security", icon: <ShieldAlert className="w-4 h-4" />, adminOnly: true },
+    { id: "god_mode", label: "GOD MODE", icon: <AlertTriangle className="w-4 h-4" />, isGod: true },
   ];
 
-  const visibleTabs = tabs.filter(t => !t.adminOnly || isMasterAdmin);
+  const visibleTabs = tabs.filter(t => (t.isGod ? isMasterAdmin : (!t.adminOnly || isMasterAdmin)));
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -286,7 +348,7 @@ export default function AdminDashboard() {
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={`relative px-6 py-4 text-sm font-bold capitalize whitespace-nowrap transition-all duration-300 ${
-                activeTab === t.id ? "text-cyan-400" : "text-gray-500 hover:text-gray-300"
+                activeTab === t.id ? (t.id === "god_mode" ? "text-red-400" : "text-cyan-400") : "text-gray-500 hover:text-gray-300"
               }`}
             >
               <div className="flex items-center space-x-2 relative z-10">
@@ -296,7 +358,7 @@ export default function AdminDashboard() {
               {activeTab === t.id && (
                 <motion.div 
                   layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 shadow-[0_0_10px_rgba(0,229,255,0.8)]" 
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 ${t.id === "god_mode" ? "bg-red-400 shadow-[0_0_10px_rgba(239,68,68,0.8)]" : "bg-cyan-400 shadow-[0_0_10px_rgba(0,229,255,0.8)]"}`} 
                 />
               )}
             </button>
@@ -307,6 +369,79 @@ export default function AdminDashboard() {
       <main className="max-w-7xl mx-auto p-4 md:p-8 relative">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none z-0" />
+
+        {/* Toast Notification */}
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-full border shadow-2xl font-bold uppercase tracking-wider ${
+                toastMessage.type === "success" 
+                  ? "bg-green-500/20 text-green-400 border-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+                  : "bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.4)]"
+              }`}
+            >
+              {toastMessage.type === "success" ? <CheckCircle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />}
+              {toastMessage.msg}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* God Mode Modal */}
+        <AnimatePresence>
+          {modalConfig?.isOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-[#0a0a0a] border-2 border-red-600 p-8 rounded-2xl max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.4)]"
+              >
+                <div className="flex items-center space-x-3 mb-6 text-red-500">
+                  <AlertTriangle className="w-8 h-8" />
+                  <h2 className="text-2xl font-black uppercase tracking-tight">Critical Warning</h2>
+                </div>
+                <p className="text-gray-300 font-medium mb-6 leading-relaxed">
+                  WARNING: You are about to overwrite <strong className="text-white uppercase">{modalConfig.field.replace('_scanned', '')}</strong> status to <strong className={modalConfig.isAll ? "text-green-400" : "text-red-400"}>{modalConfig.isAll ? "ALL" : "NONE"}</strong> for ALL appeared students. This will erase manual scan data. Type 'CONFIRM' to proceed.
+                </p>
+                <div className="mb-6">
+                  <input 
+                    type="text" 
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    className="w-full bg-black border border-red-500/50 rounded-xl px-4 py-3 text-white text-center font-mono text-xl tracking-widest focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 placeholder:text-gray-700 uppercase"
+                    placeholder="CONFIRM"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <button 
+                    onClick={() => {
+                      setModalConfig(null);
+                      setConfirmText("");
+                    }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={executeBulkUpdate}
+                    disabled={confirmText !== "CONFIRM" || bulkUpdating}
+                    className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.5)] flex items-center justify-center"
+                  >
+                    {bulkUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Execute"}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="relative z-10">
           <AnimatePresence mode="wait">
@@ -453,6 +588,63 @@ export default function AdminDashboard() {
                       {adminEmails.length === 0 && (
                         <p className="text-gray-500 text-sm italic">No personnel records found.</p>
                       )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "god_mode" && isMasterAdmin && (
+              <motion.div
+                key="god_mode"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="max-w-2xl mx-auto"
+              >
+                <div className="glass border-2 border-red-500/50 p-8 rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-bl-full pointer-events-none" />
+                  
+                  <div className="flex items-center space-x-4 mb-8 relative z-10">
+                    <div className="p-3 bg-red-500/20 rounded-xl border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black text-white tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">GOD MODE</h2>
+                      <p className="text-red-400/80 font-bold uppercase tracking-widest text-xs">Danger Zone - Bulk Operations</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-black/40 border border-red-500/30 rounded-xl mb-8 relative z-10">
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Activate God Mode</h3>
+                      <p className="text-sm text-gray-400">Unlock destructive bulk actions.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={godModeActive} onChange={(e) => setGodModeActive(e.target.checked)} />
+                      <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]"></div>
+                    </label>
+                  </div>
+
+                  <div className={`space-y-4 transition-opacity duration-300 relative z-10 ${godModeActive ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Bulk Overwrites (Target: Entry=True)</h4>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                      {[{label: 'Breakfast (None/All)', field: 'breakfast_scanned'}, {label: 'Lunch (None/All)', field: 'lunch_scanned'}, {label: 'T-Shirt (None/All)', field: 'tshirt_scanned'}].map(item => (
+                        <div key={item.field} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl border gap-4 ${godModeActive ? 'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-black/50 border-white/10'}`}>
+                          <div>
+                            <span className="font-bold text-white text-lg">{item.label}</span>
+                          </div>
+                          <div className="flex space-x-2 w-full sm:w-auto">
+                            <button onClick={() => setModalConfig({isOpen: true, field: item.field, isAll: false})} className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${godModeActive ? 'bg-black/50 text-red-400 border border-red-500/50 hover:bg-red-500/20' : 'bg-gray-800 text-gray-500'}`}>
+                              None
+                            </button>
+                            <button onClick={() => setModalConfig({isOpen: true, field: item.field, isAll: true})} className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${godModeActive ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/40 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'bg-gray-800 text-gray-500'}`}>
+                              All
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
