@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { doc, onSnapshot, setDoc, collection, query, where } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import { LogOut, Users, Star, Settings, DollarSign, FileText } from 'lucide-react';
+import { LogOut, Users, Star, Settings, DollarSign, FileText, AlertTriangle, CheckCircle, ShieldAlert, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import StudentRecords from '../shared/StudentRecords';
 import CulturalParticipations from '../shared/CulturalParticipations';
 import AdminGodPaymentRequests from '../shared/AdminGodPaymentRequests';
@@ -31,9 +32,16 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
   const [inputCash, setInputCash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'registration_permit' | 'logistics' | 'contributors' | 'contribution_analysis'>('settings');
+  const [activeTab, setActiveTab] = useState<'students' | 'participations' | 'settings' | 'payment_requests' | 'absence_requests' | 'permit_edit' | 'registration_permit' | 'logistics' | 'contributors' | 'contribution_analysis' | 'god_mode'>('settings');
   const [pendingCount, setPendingCount] = useState(0);
   const [hasViewedPayments, setHasViewedPayments] = useState(false);
+
+  // God Mode Data
+  const [godModeActive, setGodModeActive] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; field: string; isAll: boolean } | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   const [scannerControls, setScannerControls] = useState({
     allow_entry: false,
@@ -137,6 +145,45 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
       }, { merge: true });
     } catch (err) {
       console.error("Error toggling control", err);
+    }
+  };
+
+  const showToast = (msg: string, type: "success" | "error") => {
+    setToastMessage({ msg, type });
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const executeBulkUpdate = async () => {
+    if (!modalConfig || !db) return;
+    setBulkUpdating(true);
+    try {
+      const { field, isAll } = modalConfig;
+      const q = query(collection(db, "users"), where("entry_scanned", "==", true));
+      const snap = await getDocs(q);
+      const docs = snap.docs;
+      
+      const chunks = [];
+      for (let i = 0; i < docs.length; i += 400) {
+        chunks.push(docs.slice(i, i + 400));
+      }
+
+      await Promise.all(chunks.map(async (chunk) => {
+        const batch = writeBatch(db);
+        chunk.forEach((d) => {
+          batch.update(d.ref, { [field]: isAll });
+        });
+        await batch.commit();
+      }));
+
+      showToast(`Bulk update successful: ${field.replace('_scanned', '')} set to ${isAll ? 'ALL' : 'NONE'}`, "success");
+      setModalConfig(null);
+      setConfirmText("");
+      
+    } catch (err) {
+      console.error(err);
+      showToast("Bulk update failed.", "error");
+    } finally {
+      setBulkUpdating(false);
     }
   };
 
@@ -270,6 +317,14 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
             <BarChart3 className="w-5 h-5 shrink-0" />
             <span className="truncate">Contrib Analysis</span>
           </button>
+          
+          <button
+            onClick={() => setActiveTab('god_mode')}
+            className={`w-full mt-4 flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-xs lg:text-sm font-['Orbitron',sans-serif] transition-all overflow-hidden uppercase tracking-wider border-l-4 ${activeTab === 'god_mode' ? 'bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'text-red-500/50 hover:text-red-500 hover:bg-red-500/10 border-transparent hover:border-red-500/50'}`}
+          >
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <span className="truncate">GOD MODE</span>
+          </button>
         </div>
 
         {/* Center Column: Dynamic Content Area */}
@@ -329,6 +384,57 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
               <p className="mt-8 text-sm text-gray-500 font-['Inter',sans-serif] text-center bg-white/5 p-4 rounded-lg border border-white/10">
                 Toggling these switches will instantly lock or unlock the action buttons on all volunteer QR Scanners globally via Firestore sync.
               </p>
+            </div>
+          )}
+
+          {activeTab === 'god_mode' && (
+            <div className="flex flex-col h-full animate-in fade-in zoom-in duration-300">
+              <div className="glass border-2 border-red-500/50 p-8 rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-bl-full pointer-events-none" />
+                
+                <div className="flex items-center space-x-4 mb-8 relative z-10">
+                  <div className="p-3 bg-red-500/20 rounded-xl border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                    <AlertTriangle className="w-8 h-8 text-red-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-white tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">GOD MODE</h2>
+                    <p className="text-red-400/80 font-bold uppercase tracking-widest text-xs">Danger Zone - Bulk Operations</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-6 bg-black/40 border border-red-500/30 rounded-xl mb-8 relative z-10">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Activate God Mode</h3>
+                    <p className="text-sm text-gray-400">Unlock destructive bulk actions.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" checked={godModeActive} onChange={(e) => setGodModeActive(e.target.checked)} />
+                    <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]"></div>
+                  </label>
+                </div>
+
+                <div className={`space-y-4 transition-opacity duration-300 relative z-10 ${godModeActive ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Bulk Overwrites (Target: Entry=True)</h4>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    {[{label: 'Breakfast (None/All)', field: 'breakfast_scanned'}, {label: 'Lunch (None/All)', field: 'lunch_scanned'}, {label: 'T-Shirt (None/All)', field: 'tshirt_scanned'}].map(item => (
+                      <div key={item.field} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl border gap-4 ${godModeActive ? 'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-black/50 border-white/10'}`}>
+                        <div>
+                          <span className="font-bold text-white text-lg">{item.label}</span>
+                        </div>
+                        <div className="flex space-x-2 w-full sm:w-auto">
+                          <button onClick={() => setModalConfig({isOpen: true, field: item.field, isAll: false})} className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${godModeActive ? 'bg-black/50 text-red-400 border border-red-500/50 hover:bg-red-500/20' : 'bg-gray-800 text-gray-500'}`}>
+                            None
+                          </button>
+                          <button onClick={() => setModalConfig({isOpen: true, field: item.field, isAll: true})} className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${godModeActive ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/40 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'bg-gray-800 text-gray-500'}`}>
+                            All
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -404,6 +510,79 @@ export default function AdminGodDashboard({ userData }: AdminGodDashboardProps) 
         onClose={() => setIsExpenseModalOpen(false)}
         expenses={completedExpensesList}
       />
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -20, x: "-50%" }}
+            className={`fixed top-4 left-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-full border shadow-2xl font-bold uppercase tracking-wider ${
+              toastMessage.type === "success" 
+                ? "bg-green-500/20 text-green-400 border-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+                : "bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.4)]"
+            }`}
+          >
+            {toastMessage.type === "success" ? <CheckCircle className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />}
+            {toastMessage.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* God Mode Modal */}
+      <AnimatePresence>
+        {modalConfig?.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#0a0a0a] border-2 border-red-600 p-8 rounded-2xl max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.4)]"
+            >
+              <div className="flex items-center space-x-3 mb-6 text-red-500">
+                <AlertTriangle className="w-8 h-8" />
+                <h2 className="text-2xl font-black uppercase tracking-tight">Critical Warning</h2>
+              </div>
+              <p className="text-gray-300 font-medium mb-6 leading-relaxed">
+                WARNING: You are about to overwrite <strong className="text-white uppercase">{modalConfig.field.replace('_scanned', '')}</strong> status to <strong className={modalConfig.isAll ? "text-green-400" : "text-red-400"}>{modalConfig.isAll ? "ALL" : "NONE"}</strong> for ALL appeared students. This will erase manual scan data. Type 'CONFIRM' to proceed.
+              </p>
+              <div className="mb-6">
+                <input 
+                  type="text" 
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  className="w-full bg-black border border-red-500/50 rounded-xl px-4 py-3 text-white text-center font-mono text-xl tracking-widest focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 placeholder:text-gray-700 uppercase"
+                  placeholder="CONFIRM"
+                />
+              </div>
+              <div className="flex space-x-4">
+                <button 
+                  onClick={() => {
+                    setModalConfig(null);
+                    setConfirmText("");
+                  }}
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={executeBulkUpdate}
+                  disabled={confirmText !== "CONFIRM" || bulkUpdating}
+                  className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.5)] flex items-center justify-center"
+                >
+                  {bulkUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Execute"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
