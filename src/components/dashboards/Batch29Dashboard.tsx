@@ -363,35 +363,60 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
               <span>Digital Entry Pass</span>
             </h2>
             
-            <div className="flex flex-col items-center">
-              <div 
-                ref={qrRef}
-                className="bg-white p-4 rounded-xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-              >
-                <QRCodeSVG 
-                  value={JSON.stringify({ roll_number: userData.roll_number, email: userData.email })} 
-                  size={200}
-                  level="Q"
-                  includeMargin={false}
-                />
-              </div>
-              
-              <button 
-                onClick={downloadTicket}
-                disabled={isDownloading}
-                className="flex items-center gap-2 px-6 py-2 bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black rounded-full font-['Orbitron',sans-serif] text-sm uppercase tracking-wider transition-colors mb-8 shadow-[0_0_15px_rgba(0,229,255,0.2)] disabled:opacity-50"
-              >
-                <Download size={16} />
-                <span>{isDownloading ? "Generating..." : "Download Ticket"}</span>
-              </button>
-            </div>
+            {(() => {
+              const isPassCancelled = userData.qr_cancelled === true;
+              const cancelReason = userData.cancel_reason || "Neither Appeared nor submit absence request";
 
-            <div className="w-full grid grid-cols-2 gap-4">
-              <StatusBadge label="Entry" status={userData.entry_scanned} timestamp={userData.entry_scanned_time} isCancelled={userData.is_absent} />
-              <StatusBadge label="T-Shirt" status={userData.tshirt_scanned} timestamp={userData.tshirt_scanned_time} />
-              <StatusBadge label="Breakfast" status={userData.breakfast_scanned} timestamp={userData.breakfast_scanned_time} isCancelled={userData.is_absent} />
-              <StatusBadge label="Lunch" status={userData.lunch_scanned} timestamp={userData.lunch_scanned_time} isCancelled={userData.is_absent} />
-            </div>
+              return (
+                <>
+                  <div className="flex flex-col items-center">
+                    <div 
+                      ref={qrRef}
+                      className="relative bg-white p-4 rounded-xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center justify-center overflow-hidden min-w-[232px] min-h-[232px]"
+                    >
+                      <div className={isPassCancelled ? "opacity-20 filter blur-[1px]" : ""}>
+                        <QRCodeSVG 
+                          value={JSON.stringify({ roll_number: userData.roll_number, email: userData.email })} 
+                          size={200}
+                          level="Q"
+                          includeMargin={false}
+                        />
+                      </div>
+
+                      {isPassCancelled && (
+                        <div className="absolute inset-0 bg-black/90 backdrop-blur-[2px] flex flex-col items-center justify-center p-3 text-center border-2 border-red-500 rounded-xl">
+                          <XCircle className="w-10 h-10 text-red-500 mb-1.5 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+                          <span className="font-['Orbitron',sans-serif] text-xl font-black text-red-500 tracking-widest drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+                            CANCELLED
+                          </span>
+                          <div className="mt-2.5 px-2.5 py-1.5 bg-red-500/10 border border-red-500/30 rounded-md max-w-[200px]">
+                            <p className="text-[10px] font-['Inter',sans-serif] text-red-200 font-bold leading-snug">
+                              Reason : {cancelReason}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <button 
+                      onClick={downloadTicket}
+                      disabled={isDownloading || isPassCancelled}
+                      className="flex items-center gap-2 px-6 py-2 bg-[#00E5FF]/10 border border-[#00E5FF] text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black rounded-full font-['Orbitron',sans-serif] text-sm uppercase tracking-wider transition-colors mb-8 shadow-[0_0_15px_rgba(0,229,255,0.2)] disabled:opacity-50"
+                    >
+                      <Download size={16} />
+                      <span>{isDownloading ? "Generating..." : isPassCancelled ? "Pass Cancelled" : "Download Ticket"}</span>
+                    </button>
+                  </div>
+
+                  <div className="w-full grid grid-cols-2 gap-4">
+                    <StatusBadge label="Entry" status={userData.entry_scanned} timestamp={userData.entry_scanned_time} isCancelled={isPassCancelled || userData.entry_cancelled || userData.is_absent} />
+                    <StatusBadge label="T-Shirt" status={userData.tshirt_scanned} timestamp={userData.tshirt_scanned_time} isCancelled={isPassCancelled || userData.tshirt_cancelled} />
+                    <StatusBadge label="Breakfast" status={userData.breakfast_scanned} timestamp={userData.breakfast_scanned_time} isCancelled={isPassCancelled || userData.breakfast_cancelled || userData.is_absent} />
+                    <StatusBadge label="Lunch" status={userData.lunch_scanned} timestamp={userData.lunch_scanned_time} isCancelled={isPassCancelled || userData.lunch_cancelled || userData.is_absent} />
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 

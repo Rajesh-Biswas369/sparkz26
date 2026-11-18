@@ -6,7 +6,7 @@ import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User 
 import { db, auth } from "@/lib/firebase";
 import { jsPDF } from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileDown, CheckCircle, IndianRupee, Utensils, Users, Search, Lock, ShieldAlert, LogOut, Trash2, Loader2, ChevronRight, AlertTriangle } from "lucide-react";
+import { FileDown, CheckCircle, IndianRupee, Utensils, Users, Search, Lock, ShieldAlert, LogOut, Trash2, Loader2, ChevronRight, AlertTriangle, XCircle } from "lucide-react";
 import Link from "next/link";
 
 type Tab = "operations" | "performers" | "treasury" | "manage_admins" | "god_mode";
@@ -42,6 +42,15 @@ export default function AdminDashboard() {
   const [confirmText, setConfirmText] = useState("");
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  // Mass Cancellation Data
+  const [massCancelModalOpen, setMassCancelModalOpen] = useState(false);
+  const [massCancelConfirmText, setMassCancelConfirmText] = useState("");
+  const [revertModalOpen, setRevertModalOpen] = useState(false);
+  const [revertConfirmText, setRevertConfirmText] = useState("");
+  const [massCancelling, setMassCancelling] = useState(false);
+  const [unappearedCount, setUnappearedCount] = useState<number | null>(null);
+  const [massCancelledCount, setMassCancelledCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!auth) {
@@ -252,6 +261,137 @@ export default function AdminDashboard() {
     }
   };
 
+  useEffect(() => {
+    if (!db || activeTab !== "god_mode") return;
+
+    const q = query(collection(db, "users"), where("batch", "==", "29"));
+    const unsub = onSnapshot(q, (snapshot) => {
+      let unappeared = 0;
+      let cancelled = 0;
+      snapshot.docs.forEach((docSnap) => {
+        const data = docSnap.data();
+        const isAppeared = data.entry_scanned === true;
+        const isConfirmedAbsent = data.absence_status === 'confirmed';
+        if (!isAppeared && !isConfirmedAbsent) {
+          unappeared++;
+        }
+        if (data.qr_cancelled) {
+          cancelled++;
+        }
+      });
+      setUnappearedCount(unappeared);
+      setMassCancelledCount(cancelled);
+    });
+
+    return () => unsub();
+  }, [activeTab]);
+
+  const executeMassCancel = async () => {
+    if (!db) return;
+    setMassCancelling(true);
+    try {
+      const q = query(collection(db, "users"), where("batch", "==", "29"));
+      const snap = await getDocs(q);
+
+      const targetDocs = snap.docs.filter((d) => {
+        const data = d.data();
+        const isAppeared = data.entry_scanned === true;
+        const isConfirmedAbsent = data.absence_status === 'confirmed';
+        return !isAppeared && !isConfirmedAbsent;
+      });
+
+      if (targetDocs.length === 0) {
+        showToast("No eligible unappeared students found.", "error");
+        setMassCancelModalOpen(false);
+        setMassCancelConfirmText("");
+        return;
+      }
+
+      const chunks = [];
+      for (let i = 0; i < targetDocs.length; i += 400) {
+        chunks.push(targetDocs.slice(i, i + 400));
+      }
+
+      await Promise.all(chunks.map(async (chunk) => {
+        const batch = writeBatch(db);
+        chunk.forEach((d) => {
+          batch.update(d.ref, {
+            qr_cancelled: true,
+            cancel_reason: "Neither Appeared nor submit absence request",
+            entry_cancelled: true,
+            breakfast_cancelled: true,
+            lunch_cancelled: true,
+            tshirt_cancelled: true,
+            is_absent: true,
+            cancelled_at: new Date().toISOString()
+          });
+        });
+        await batch.commit();
+      }));
+
+      showToast(`Cancelled QR & 4 icons for ${targetDocs.length} unappeared students!`, "success");
+      setMassCancelModalOpen(false);
+      setMassCancelConfirmText("");
+    } catch (err) {
+      console.error("Error executing mass cancellation", err);
+      showToast("Mass cancellation failed.", "error");
+    } finally {
+      setMassCancelling(false);
+    }
+  };
+
+  const executeRevertCancel = async () => {
+    if (!db) return;
+    setMassCancelling(true);
+    try {
+      const q = query(collection(db, "users"), where("batch", "==", "29"));
+      const snap = await getDocs(q);
+
+      const targetDocs = snap.docs.filter((d) => {
+        const data = d.data();
+        return data.qr_cancelled === true && data.cancel_reason === "Neither Appeared nor submit absence request";
+      });
+
+      if (targetDocs.length === 0) {
+        showToast("No mass-cancelled students to restore.", "error");
+        setRevertModalOpen(false);
+        setRevertConfirmText("");
+        return;
+      }
+
+      const chunks = [];
+      for (let i = 0; i < targetDocs.length; i += 400) {
+        chunks.push(targetDocs.slice(i, i + 400));
+      }
+
+      await Promise.all(chunks.map(async (chunk) => {
+        const batch = writeBatch(db);
+        chunk.forEach((d) => {
+          const data = d.data();
+          batch.update(d.ref, {
+            qr_cancelled: false,
+            cancel_reason: null,
+            entry_cancelled: false,
+            breakfast_cancelled: false,
+            lunch_cancelled: false,
+            tshirt_cancelled: false,
+            is_absent: data.absence_status === 'confirmed'
+          });
+        });
+        await batch.commit();
+      }));
+
+      showToast(`Restored passes for ${targetDocs.length} students!`, "success");
+      setRevertModalOpen(false);
+      setRevertConfirmText("");
+    } catch (err) {
+      console.error("Error reverting mass cancellation", err);
+      showToast("Revert failed.", "error");
+    } finally {
+      setMassCancelling(false);
+    }
+  };
+
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAdminEmail || !db) return;
@@ -436,6 +576,132 @@ export default function AdminDashboard() {
                     className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.5)] flex items-center justify-center"
                   >
                     {bulkUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Execute"}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mass Cancel Modal */}
+        <AnimatePresence>
+          {massCancelModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-[#0a0a0a] border-2 border-red-600 p-8 rounded-2xl max-w-lg w-full shadow-[0_0_50px_rgba(239,68,68,0.5)]"
+              >
+                <div className="flex items-center space-x-3 mb-6 text-red-500">
+                  <AlertTriangle className="w-8 h-8" />
+                  <h2 className="text-2xl font-black uppercase tracking-tight">Mass Cancel Passes & Perks</h2>
+                </div>
+                <div className="text-gray-300 font-medium mb-6 text-sm leading-relaxed space-y-3">
+                  <p>
+                    You are about to cancel the Digital Entry Pass (QR Code) and all 4 perks (<strong className="text-white">Entry, Breakfast, Lunch, T-Shirt</strong>) for mass students who:
+                  </p>
+                  <ul className="list-disc list-inside text-red-300 space-y-1 font-semibold bg-red-500/10 p-3 rounded-lg border border-red-500/20 text-xs">
+                    <li>Did NOT appear (<code className="text-white">entry_scanned != true</code>)</li>
+                    <li>Do NOT have a confirmed absence request (<code className="text-white">absence_status != &apos;confirmed&apos;</code>)</li>
+                  </ul>
+                  <p>
+                    The QR code will be permanently stamped with:
+                    <span className="block mt-1 font-mono text-xs bg-black p-2 rounded border border-red-500/40 text-red-400 font-bold">
+                      Reason : Neither Appeared nor submit absence request
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Target students: <strong className="text-white">{unappearedCount !== null ? unappearedCount : 'calculating...'}</strong>
+                  </p>
+                  <p className="text-white font-bold text-xs uppercase tracking-wider">
+                    Type &apos;CONFIRM&apos; below to execute:
+                  </p>
+                </div>
+                <div className="mb-6">
+                  <input 
+                    type="text" 
+                    value={massCancelConfirmText}
+                    onChange={(e) => setMassCancelConfirmText(e.target.value)}
+                    className="w-full bg-black border border-red-500/50 rounded-xl px-4 py-3 text-white text-center font-mono text-xl tracking-widest focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 placeholder:text-gray-700 uppercase"
+                    placeholder="CONFIRM"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <button 
+                    onClick={() => {
+                      setMassCancelModalOpen(false);
+                      setMassCancelConfirmText("");
+                    }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={executeMassCancel}
+                    disabled={massCancelConfirmText !== "CONFIRM" || massCancelling}
+                    className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.5)] flex items-center justify-center gap-2"
+                  >
+                    {massCancelling ? <Loader2 className="w-5 h-5 animate-spin" /> : "Execute Mass Cancel"}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Revert Modal */}
+        <AnimatePresence>
+          {revertModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-[#0a0a0a] border-2 border-yellow-500/80 p-8 rounded-2xl max-w-lg w-full shadow-[0_0_50px_rgba(234,179,8,0.3)]"
+              >
+                <div className="flex items-center space-x-3 mb-6 text-yellow-400">
+                  <AlertTriangle className="w-8 h-8" />
+                  <h2 className="text-2xl font-black uppercase tracking-tight">Revert Mass Cancelled Passes</h2>
+                </div>
+                <p className="text-gray-300 font-medium mb-6 text-sm leading-relaxed">
+                  This will un-cancel the passes and perks for students previously cancelled with reason &apos;Neither Appeared nor submit absence request&apos;. Type &apos;CONFIRM&apos; to restore them.
+                </p>
+                <div className="mb-6">
+                  <input 
+                    type="text" 
+                    value={revertConfirmText}
+                    onChange={(e) => setRevertConfirmText(e.target.value)}
+                    className="w-full bg-black border border-yellow-500/50 rounded-xl px-4 py-3 text-white text-center font-mono text-xl tracking-widest focus:outline-none focus:border-yellow-500 placeholder:text-gray-700 uppercase"
+                    placeholder="CONFIRM"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <button 
+                    onClick={() => {
+                      setRevertModalOpen(false);
+                      setRevertConfirmText("");
+                    }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={executeRevertCancel}
+                    disabled={revertConfirmText !== "CONFIRM" || massCancelling}
+                    className="flex-1 bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(234,179,8,0.5)] flex items-center justify-center gap-2"
+                  >
+                    {massCancelling ? <Loader2 className="w-5 h-5 animate-spin" /> : "Execute Revert"}
                   </button>
                 </div>
               </motion.div>
@@ -645,6 +911,51 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                       ))}
+                    </div>
+
+                    {/* Mass Cancellation for Unappeared Students */}
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest pt-6 mb-4">
+                      Mass Pass & Perks Cancellation (Unappeared & Unconfirmed)
+                    </h4>
+
+                    <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl border gap-4 ${godModeActive ? 'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-black/50 border-white/10'}`}>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold text-white text-lg">Cancel QR & All 4 Icons</span>
+                          {unappearedCount !== null && (
+                            <span className="text-[10px] font-['Orbitron',sans-serif] px-2 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-400 font-bold">
+                              {unappearedCount} Unappeared Target{unappearedCount === 1 ? '' : 's'}
+                            </span>
+                          )}
+                          {massCancelledCount !== null && massCancelledCount > 0 && (
+                            <span className="text-[10px] font-['Orbitron',sans-serif] px-2 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 font-bold">
+                              {massCancelledCount} Already Cancelled
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 mt-1 max-w-xl">
+                          Cancels Digital Entry Pass (QR) and all 4 icons (Entry, Breakfast, Lunch, T-Shirt) for students who did not appear and have no confirmed absence request.
+                          Reason stamped: <strong className="text-red-400 font-mono">Neither Appeared nor submit absence request</strong>.
+                        </span>
+                      </div>
+
+                      <div className="flex space-x-2 w-full sm:w-auto">
+                        {massCancelledCount !== null && massCancelledCount > 0 && (
+                          <button
+                            onClick={() => setRevertModalOpen(true)}
+                            className={`flex-1 sm:flex-none px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${godModeActive ? 'bg-black/50 text-yellow-400 border border-yellow-500/50 hover:bg-yellow-500/20' : 'bg-gray-800 text-gray-500'}`}
+                          >
+                            Revert Passes
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setMassCancelModalOpen(true)}
+                          className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${godModeActive ? 'bg-red-600 text-white hover:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-gray-800 text-gray-500'}`}
+                        >
+                          <XCircle size={15} />
+                          Mass Cancel
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

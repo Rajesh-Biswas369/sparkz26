@@ -251,6 +251,17 @@ export default function QRScanner() {
               </div>
             </div>
 
+            {scannedStudent.qr_cancelled && (
+              <div className="w-full bg-red-500/20 border-2 border-red-500 rounded-xl p-4 mb-6 text-center z-10 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+                <div className="flex items-center justify-center gap-2 text-red-500 font-['Orbitron',sans-serif] font-bold text-base">
+                  <XCircle size={18} /> QR ENTRY PASS CANCELLED
+                </div>
+                <p className="text-xs text-red-300 font-['Inter',sans-serif] mt-1 font-semibold">
+                  Reason : {scannedStudent.cancel_reason || "Neither Appeared nor submit absence request"}
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 z-10">
               
               <ActionButton 
@@ -312,8 +323,9 @@ function ActionButton({ label, fieldBase, scannedStudent, updating, onAction, is
   const timeStr = scannedStudent[`${fieldBase}_scanned_time`];
   const isAbsent = scannedStudent.is_absent === true;
   const isEntryDone = scannedStudent.entry_scanned === true;
+  const isCancelled = scannedStudent.qr_cancelled === true || (fieldBase === 'tshirt' ? scannedStudent.tshirt_cancelled === true : isAbsent);
 
-  if (isAbsent && fieldBase !== 'tshirt') {
+  if (isCancelled) {
     return (
       <button 
         disabled
@@ -323,6 +335,9 @@ function ActionButton({ label, fieldBase, scannedStudent, updating, onAction, is
           <XCircle size={16} />
           <span>{label} Cancelled</span>
         </div>
+        {scannedStudent.qr_cancelled && (
+          <span className="text-[10px] text-red-400/80 mt-0.5 lowercase italic">Pass Cancelled</span>
+        )}
       </button>
     );
   }

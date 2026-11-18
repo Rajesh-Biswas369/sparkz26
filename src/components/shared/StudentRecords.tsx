@@ -309,9 +309,20 @@ export default function StudentRecords({ isAdminGod = false }: StudentRecordsPro
                           </span>
                         </>
                       )}
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.tshirt_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
-                        TSHIRT
-                      </span>
+                      {student.tshirt_cancelled || student.qr_cancelled ? (
+                        <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/30 text-red-400 bg-red-500/10">
+                          TSHIRT <X size={10} className="text-red-400" />
+                        </span>
+                      ) : (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider ${student.tshirt_scanned === true ? 'border border-green-500 text-green-400 bg-green-500/10' : 'border border-white/20 text-gray-500 bg-white/5'}`}>
+                          TSHIRT
+                        </span>
+                      )}
+                      {student.qr_cancelled && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider border border-red-500/40 text-red-400 bg-red-500/20" title={`Reason: ${student.cancel_reason || "Neither Appeared nor submit absence request"}`}>
+                          QR CANCELLED
+                        </span>
+                      )}
                     </div>
                   </td>
                   {isAdminGod && (

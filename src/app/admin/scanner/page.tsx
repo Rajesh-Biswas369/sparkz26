@@ -18,6 +18,9 @@ interface ScannedUser {
   lunch_scanned: boolean;
   tshirt_scanned: boolean;
   is_absent?: boolean;
+  qr_cancelled?: boolean;
+  cancel_reason?: string;
+  tshirt_cancelled?: boolean;
 }
 
 export default function ScannerPage() {
@@ -256,10 +259,21 @@ export default function ScannerPage() {
               <div className="flex justify-between items-center">
                 <span className="font-mono text-[#00E5FF] tracking-wider">{scannedData.roll_number}</span>
                 <span className={`px-3 py-1 rounded text-xs font-bold uppercase border ${scannedData.batch === '28' ? 'bg-[#E07020]/20 text-[#E07020] border-[#E07020]/30' : 'bg-white/10 text-white border-white/20'}`}>
-                  Batch '{scannedData.batch}
+                  Batch &apos;{scannedData.batch}
                 </span>
               </div>
             </div>
+
+            {scannedData.qr_cancelled && (
+              <div className="mx-6 mt-6 bg-red-500/20 border-2 border-red-500 rounded-xl p-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-red-500 font-['Orbitron',sans-serif] font-bold text-base">
+                  <XCircle className="w-5 h-5" /> QR ENTRY PASS CANCELLED
+                </div>
+                <p className="text-xs text-red-300 font-['Inter',sans-serif] mt-1 font-semibold">
+                  Reason : {scannedData.cancel_reason || "Neither Appeared nor submit absence request"}
+                </p>
+              </div>
+            )}
 
             {/* Action Buttons Grid */}
             <div className="p-6 grid grid-cols-1 gap-4">
@@ -269,6 +283,8 @@ export default function ScannerPage() {
                 label="Log Entry"
                 isClaimed={scannedData.entry_scanned}
                 onClick={() => handleAction('entry_scanned')}
+                isDisabled={scannedData.qr_cancelled}
+                disabledReason="Pass Cancelled"
               />
               
               <ActionButton 
@@ -276,6 +292,8 @@ export default function ScannerPage() {
                 label="Give Breakfast"
                 isClaimed={scannedData.breakfast_scanned}
                 onClick={() => handleAction('breakfast_scanned')}
+                isDisabled={scannedData.qr_cancelled}
+                disabledReason="Pass Cancelled"
               />
               
               <ActionButton 
@@ -284,6 +302,8 @@ export default function ScannerPage() {
                 isClaimed={scannedData.lunch_scanned}
                 onClick={() => handleAction('lunch_scanned')}
                 highlightColor={scannedData.food_preference === 'Veg' ? 'green' : 'red'}
+                isDisabled={scannedData.qr_cancelled}
+                disabledReason="Pass Cancelled"
               />
               
               <ActionButton 
@@ -291,8 +311,8 @@ export default function ScannerPage() {
                 label="Give T-Shirt"
                 isClaimed={scannedData.tshirt_scanned}
                 onClick={() => handleAction('tshirt_scanned')}
-                isDisabled={!scannedData.entry_scanned && !scannedData.is_absent}
-                disabledReason="Entry Required"
+                isDisabled={scannedData.qr_cancelled || scannedData.tshirt_cancelled || (!scannedData.entry_scanned && !scannedData.is_absent)}
+                disabledReason={scannedData.qr_cancelled || scannedData.tshirt_cancelled ? "T-Shirt Cancelled" : "Entry Required"}
               />
 
             </div>
