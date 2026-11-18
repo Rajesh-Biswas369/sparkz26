@@ -36,8 +36,11 @@ export default function LogisticsStats() {
           else if (food === 'non-veg') nonVegCount++;
         }
 
-        // T-Shirt - only count for students who have appeared (entry_scanned === true and not absent)
-        if (data.entry_scanned === true && !data.is_absent) {
+        // T-Shirt - only count for students who have appeared (entry_scanned === true and not absent) OR whose absence request is confirmed
+        const isAppeared = data.entry_scanned === true && !data.is_absent;
+        const isConfirmedAbsent = data.absence_status === 'confirmed';
+
+        if (isAppeared || isConfirmedAbsent) {
           const size = data.tshirt_size?.toUpperCase();
           if (size && (tshirtCounts as any)[size] !== undefined) {
             (tshirtCounts as any)[size]++;
@@ -105,8 +108,8 @@ export default function LogisticsStats() {
               <Shirt size={18} />
               T-Shirt Requirements
             </h3>
-            <span className="text-[10px] font-['Orbitron',sans-serif] text-green-400 bg-green-500/10 border border-green-500/30 px-2.5 py-1 rounded tracking-widest uppercase font-semibold">
-              Appeared Only
+            <span className="text-[10px] font-['Orbitron',sans-serif] text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1 rounded tracking-widest uppercase font-semibold">
+              Appeared + Confirmed Absent
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
