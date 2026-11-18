@@ -15,12 +15,12 @@ const getTshirtDisplay = (size: string) => {
   if (!size) return 'N/A';
   const s = size.toUpperCase();
   const sizes: Record<string, string> = {
-    'XS': 'XS (30")',
-    'S': 'S (32")',
-    'M': 'M (36")',
+    'XS': 'XS (34")',
+    'S': 'S (36")',
+    'M': 'M (38")',
     'L': 'L (40")',
-    'XL': 'XL (44")',
-    'XXL': 'XXL (48")'
+    'XL': 'XL (42")',
+    'XXL': 'XXL (44")'
   };
   return sizes[s] || s;
 };

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
-import { User, LogOut, CheckCircle2, XCircle, Circle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2, Trash2 } from 'lucide-react';
+import { User, LogOut, CheckCircle2, XCircle, Circle, UploadCloud, Download, Calendar, MapPin, Clock, Edit2, Trash2, Info, X } from 'lucide-react';
 import { collection, query, where, getDocs, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 
 import { toPng } from 'html-to-image';
@@ -49,12 +49,12 @@ const getTshirtDisplay = (size: string) => {
   if (!size) return 'N/A';
   const s = size.toUpperCase();
   const sizes: Record<string, string> = {
-    'XS': 'XS (30")',
-    'S': 'S (32")',
-    'M': 'M (36")',
+    'XS': 'XS (34")',
+    'S': 'S (36")',
+    'M': 'M (38")',
     'L': 'L (40")',
-    'XL': 'XL (44")',
-    'XXL': 'XXL (48")'
+    'XL': 'XL (42")',
+    'XXL': 'XXL (44")'
   };
   return sizes[s] || s;
 };
@@ -68,6 +68,7 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
   const qrRef = React.useRef<HTMLDivElement>(null);
   const ticketRef = React.useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   
   const [userParticipations, setUserParticipations] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -339,7 +340,17 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
                 <span className="text-white text-lg font-medium tracking-wide capitalize">{userData.food_preference || 'N/A'}</span>
               </div>
               <div className="flex flex-col space-y-1">
-                <span className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">T-Shirt Size</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">T-Shirt Size</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowSizeChart(true)}
+                    className="text-[#00E5FF] hover:text-white transition-colors p-0.5 rounded-full hover:bg-white/10"
+                    title="View T-Shirt Size Chart"
+                  >
+                    <Info size={12} className="stroke-[2.5]" />
+                  </button>
+                </div>
                 <span className="text-white text-lg font-medium tracking-wide uppercase">{getTshirtDisplay(userData.tshirt_size)}</span>
               </div>
             </div>
@@ -507,6 +518,48 @@ export default function Batch29Dashboard({ userData }: { userData: any }) {
         onClose={() => setIsRegEditModalOpen(false)}
         userData={userData}
       />
+
+      {/* T-Shirt Size Chart Lightbox */}
+      {showSizeChart && (
+        <div 
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn"
+          onClick={() => setShowSizeChart(false)}
+        >
+          <div 
+            className="bg-[#111] border border-white/20 rounded-2xl p-5 max-w-lg w-full shadow-[0_0_50px_rgba(0,229,255,0.3)] relative flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Info size={18} className="text-[#00E5FF]" />
+                <h3 className="font-['Orbitron',sans-serif] text-sm font-bold text-white uppercase tracking-wider">
+                  T-Shirt Size Chart
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSizeChart(false)}
+                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Close size chart"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 p-2">
+              <img
+                src="/T-shirt-corr.jpg"
+                alt="T-Shirt Size Chart"
+                className="w-full h-auto object-contain max-h-[60vh] mx-auto rounded-lg"
+              />
+            </div>
+
+            <p className="mt-3 text-center text-[11px] text-gray-400 font-['Inter',sans-serif]">
+              All measurements (Chest, Length, Sleeve, Shoulder) are in inches.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

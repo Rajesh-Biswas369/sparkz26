@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { X, Save } from 'lucide-react';
+import { X, Save, Info } from 'lucide-react';
 
 interface EditRegistrationModalProps {
   isOpen: boolean;
@@ -24,6 +24,7 @@ export default function EditRegistrationModal({ isOpen, onClose, userData }: Edi
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
   if (!isOpen) return null;
 
@@ -190,19 +191,32 @@ export default function EditRegistrationModal({ isOpen, onClose, userData }: Edi
             </div>
 
             <div className="flex flex-col space-y-1">
-              <label className="text-white/60 text-[10px] uppercase tracking-widest font-bold font-['Inter',sans-serif]">T-Shirt Size</label>
+              <div className="flex items-center gap-1.5">
+                <label className="text-white/60 text-[10px] uppercase tracking-widest font-bold font-['Inter',sans-serif]">
+                  T-Shirt Size
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeChart(true)}
+                  className="inline-flex items-center justify-center text-[#00E5FF] hover:text-white transition-colors p-0.5 rounded-full hover:bg-white/10"
+                  title="View T-Shirt Size Chart"
+                  aria-label="View T-Shirt Size Chart"
+                >
+                  <Info size={14} className="stroke-[2.5]" />
+                </button>
+              </div>
               <select
                 name="tshirt_size"
-                value={formData.tshirt_size}
-                onChange={handleChange}
+                value={formData.tshirt_size?.toUpperCase() || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, tshirt_size: e.target.value.toUpperCase() }))}
                 className="bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-[#00E5FF]/50 transition-colors uppercase"
               >
-                <option value="xs">XS (30")</option>
-                <option value="s">S (32")</option>
-                <option value="m">M (36")</option>
-                <option value="l">L (40")</option>
-                <option value="xl">XL (44")</option>
-                <option value="xxl">XXL (48")</option>
+                <option value="XS">XS (34")</option>
+                <option value="S">S (36")</option>
+                <option value="M">M (38")</option>
+                <option value="L">L (40")</option>
+                <option value="XL">XL (42")</option>
+                <option value="XXL">XXL (44")</option>
               </select>
             </div>
 
@@ -239,6 +253,48 @@ export default function EditRegistrationModal({ isOpen, onClose, userData }: Edi
         </div>
         
       </div>
+
+      {/* T-Shirt Size Chart Modal Preview */}
+      {showSizeChart && (
+        <div 
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn"
+          onClick={() => setShowSizeChart(false)}
+        >
+          <div 
+            className="bg-[#111] border border-white/20 rounded-2xl p-5 max-w-lg w-full shadow-[0_0_50px_rgba(0,229,255,0.3)] relative flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Info size={18} className="text-[#00E5FF]" />
+                <h3 className="font-['Orbitron',sans-serif] text-sm font-bold text-white uppercase tracking-wider">
+                  T-Shirt Size Chart
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSizeChart(false)}
+                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Close size chart"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 p-2">
+              <img
+                src="/T-shirt-corr.jpg"
+                alt="T-Shirt Size Chart"
+                className="w-full h-auto object-contain max-h-[60vh] mx-auto rounded-lg"
+              />
+            </div>
+
+            <p className="mt-3 text-center text-[11px] text-gray-400 font-['Inter',sans-serif]">
+              All measurements (Chest, Length, Sleeve, Shoulder) are in inches.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
