@@ -36,10 +36,12 @@ export default function LogisticsStats() {
           else if (food === 'non-veg') nonVegCount++;
         }
 
-        // T-Shirt - count regardless of absence
-        const size = data.tshirt_size?.toUpperCase();
-        if (size && (tshirtCounts as any)[size] !== undefined) {
-          (tshirtCounts as any)[size]++;
+        // T-Shirt - only count for students who have appeared (entry_scanned === true and not absent)
+        if (data.entry_scanned === true && !data.is_absent) {
+          const size = data.tshirt_size?.toUpperCase();
+          if (size && (tshirtCounts as any)[size] !== undefined) {
+            (tshirtCounts as any)[size]++;
+          }
         }
       });
 
@@ -98,10 +100,15 @@ export default function LogisticsStats() {
 
         {/* T-Shirt Stats */}
         <div className="bg-black/40 backdrop-blur-md border border-[#00E5FF]/30 rounded-xl p-6 shadow-[0_0_15px_rgba(0,229,255,0.15)] flex flex-col">
-          <h3 className="font-['Orbitron',sans-serif] text-sm text-[#00E5FF] uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Shirt size={18} />
-            T-Shirt Requirements
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-['Orbitron',sans-serif] text-sm text-[#00E5FF] uppercase tracking-widest flex items-center gap-2">
+              <Shirt size={18} />
+              T-Shirt Requirements
+            </h3>
+            <span className="text-[10px] font-['Orbitron',sans-serif] text-green-400 bg-green-500/10 border border-green-500/30 px-2.5 py-1 rounded tracking-widest uppercase font-semibold">
+              Appeared Only
+            </span>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {Object.entries(stats.tshirts).map(([size, count]) => (
               <div key={size} className="flex flex-col bg-white/5 border border-white/10 rounded-lg p-3 justify-center items-center">
