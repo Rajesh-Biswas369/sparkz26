@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, increment } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, increment, collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 // Clean environment variable helper (removes accidental quotes and whitespace)
 function cleanEnv(val: string | undefined): string {
@@ -35,20 +35,30 @@ const SUPPORTED_EVENTS = new Set([
   'qr_code.credited'
 ]);
 
-// Helper to get authenticated server Firestore instance
+// Shared mutex/promise to prevent concurrent sign-in collisions during bursts
+let authPromise: Promise<any> | null = null;
+
+// Helper to get authenticated server Firestore instance safely under high load
 async function getServerDb() {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const auth = getAuth(app);
   const db = getFirestore(app);
 
   if (!auth.currentUser) {
-    try {
-      await signInWithEmailAndPassword(auth, BOT_EMAIL, BOT_PASSWORD);
-      console.log('[Razorpay Webhook] Authenticated server session via bot UID:', auth.currentUser?.uid);
-    } catch (authErr: any) {
-      console.error('[Razorpay Webhook] Failed to authenticate server bot session:', authErr.message);
-      throw authErr;
+    if (!authPromise) {
+      authPromise = signInWithEmailAndPassword(auth, BOT_EMAIL, BOT_PASSWORD)
+        .then(() => {
+          console.log('[Razorpay Webhook] Authenticated server session via bot UID:', auth.currentUser?.uid);
+        })
+        .catch((authErr: any) => {
+          console.error('[Razorpay Webhook] Failed to authenticate server bot session:', authErr.message);
+          throw authErr;
+        })
+        .finally(() => {
+          authPromise = null;
+        });
     }
+    await authPromise;
   }
 
   return db;
@@ -132,14 +142,16 @@ export async function handleRazorpayWebhook(req: NextRequest) {
     // 1. Convert paise to Rupees
     const amountInRupees = Number(amountInPaise) / 100;
 
-    // 2. Deduct 1 Rupee (project fee adjustment rule)
-    const adjustedAmount = Math.max(0, amountInRupees - 1);
+    // 2. Adjust for project fee rule:
+    // e.g. For ₹61 payment, deduct ₹1 -> adds ₹60 to treasury.
+    // For ₹501 payment, deduct ₹1 -> adds ₹500 to treasury.
+    const adjustedAmount = amountInRupees > 1 ? amountInRupees - 1 : amountInRupees;
 
-    console.log(`[Razorpay Webhook] Processing Tx ${transactionId}: ₹${amountInRupees} (Adjusted: ₹${adjustedAmount})`);
+    console.log(`[Razorpay Webhook] Processing Tx ${transactionId}: ₹${amountInRupees} (Credited to Treasury: ₹${adjustedAmount})`);
 
     const db = await getServerDb();
 
-    // Check for deduplication
+    // Check for deduplication (prevents double crediting on retry/multiple events)
     const txRef = doc(db, 'treasury_transactions', transactionId);
     const existingTx = await getDoc(txRef);
     if (existingTx.exists()) {
@@ -147,7 +159,7 @@ export async function handleRazorpayWebhook(req: NextRequest) {
       return NextResponse.json({ status: 'already_processed', transactionId }, { status: 200 });
     }
 
-    // Update treasury master_ledger with atomic increment
+    // Update treasury master_ledger with atomic increment (concurrency-safe)
     const treasuryRef = doc(db, 'treasury', 'master_ledger');
     await setDoc(treasuryRef, {
       online_collected: increment(adjustedAmount),
@@ -166,6 +178,51 @@ export async function handleRazorpayWebhook(req: NextRequest) {
       method: paymentEntity?.method || null,
       processedAt: new Date().toISOString()
     });
+
+    // Optional Auto-link: If roll number or mobile number is provided, mark contributor as paid
+    try {
+      const notes = paymentEntity?.notes || orderEntity?.notes || {};
+      const rollNumber = notes.rollNumber || notes.roll_number || notes.roll || notes.roll_no;
+      const rawContact = paymentEntity?.contact || '';
+      const cleanPhone = rawContact.replace(/^\+91/, '').replace(/^0+/, '').trim();
+
+      if (rollNumber) {
+        const contributorRef = doc(db, 'contributors', String(rollNumber).trim());
+        const cSnap = await getDoc(contributorRef);
+        if (cSnap.exists() && cSnap.data()?.status !== 'paid') {
+          await setDoc(contributorRef, {
+            status: 'paid',
+            amount: adjustedAmount,
+            paymentMethod: 'online',
+            recipient: 'Razorpay Webhook',
+            collected: false,
+            transactionId,
+            timestamp: new Date().toISOString()
+          }, { merge: true });
+          console.log(`[Razorpay Webhook] Auto-marked contributor ${rollNumber} as paid.`);
+        }
+      } else if (cleanPhone && cleanPhone.length === 10) {
+        const qPhone = query(collection(db, 'contributors'), where('phone', '==', cleanPhone), limit(1));
+        const phoneSnap = await getDocs(qPhone);
+        if (!phoneSnap.empty) {
+          const docItem = phoneSnap.docs[0];
+          if (docItem.data()?.status !== 'paid') {
+            await setDoc(docItem.ref, {
+              status: 'paid',
+              amount: adjustedAmount,
+              paymentMethod: 'online',
+              recipient: 'Razorpay Webhook',
+              collected: false,
+              transactionId,
+              timestamp: new Date().toISOString()
+            }, { merge: true });
+            console.log(`[Razorpay Webhook] Auto-marked contributor with phone ${cleanPhone} as paid.`);
+          }
+        }
+      }
+    } catch (contribErr) {
+      console.warn('[Razorpay Webhook] Contributor auto-match notice (non-fatal):', contribErr);
+    }
 
     console.log(`[Razorpay Webhook] Successfully updated treasury! Added ₹${adjustedAmount} to online_collected for Tx ${transactionId}`);
 

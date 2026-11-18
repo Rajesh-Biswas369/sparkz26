@@ -526,12 +526,12 @@ export default function Contributors({ isAdminGod = false }: ContributorsProps) 
               Method: <span className="capitalize font-bold text-[#d4ff00]">{paymentMethod}</span>
             </p>
 
-            <div className="flex justify-between gap-2 mb-4">
-              {[501, 1001, 1501].map(amt => (
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[61, 501, 1001, 1501].map(amt => (
                 <button
                   key={amt}
                   onClick={() => handlePredefinedAmount(amt)}
-                  className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white rounded border border-white/10 transition-colors"
+                  className="py-2 bg-white/5 hover:bg-white/10 text-white rounded border border-white/10 transition-colors text-xs font-semibold"
                 >
                   ₹{amt}
                 </button>
